@@ -1,13 +1,35 @@
 # =============================================================================
-# Texture Extractor v1.1.3
+# Texture Extractor v1.2.1
 # A tool to extract and modify Garry's Mod textures
 # =============================================================================
 
 """
-=== Texture Extractor v1.1.3 ===
+=== Texture Extractor v1.2.1 ===
 A tool to extract and modify Garry's Mod textures.
 
 === CHANGELOG ===
+
+v1.2.1 (2025-04-22)
+- Improved settings dialog:
+  * Reorganized deletion settings to group checkboxes together
+  * Set trees and props deletion to be off by default
+  * Added setting for specifying C4 sound replacement file
+  * Added helpful sound file suggestions
+  * Fixed BooleanVar handling for more reliable settings
+
+v1.2.0 (2024-03-21)
+- Added VMT deletion system:
+  * Added configurable deletion categories (trees, effects, UI, hands/weapons, props)
+  * Added master enable/disable switch for deletion
+  * Added per-category enable/disable toggles
+  * Added customizable deletion patterns
+  * Added deletion statistics tracking
+- Improved GUI:
+  * Enhanced completion message formatting
+  * Added thousands separators for large numbers
+  * Improved status message readability
+  * Added centered text alignment
+  * Added consistent font styling
 
 v1.1.3 (2024-03-21)
 - Added settings system:
@@ -125,6 +147,9 @@ try:
 except ImportError:
     HAS_VPK = False
     logging.warning("VPK module not found. VPK file processing will be disabled.")
+
+# Version information
+VERSION = "1.2.1"
 
 # Initialize Windows-specific modules
 try:
@@ -258,12 +283,6 @@ def elevate_script():
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Version Information
-# -----------------------------------------------------------------------------
-VERSION = "1.1.3"
-VERSION_DATE = "2024-03-21"
-
-# -----------------------------------------------------------------------------
 # Basic Options
 # -----------------------------------------------------------------------------
 
@@ -320,13 +339,82 @@ BACKUP = {
 
 # Enhanced transparency configuration
 TRANSPARENCY = {
-    'default_alpha': 0.85,        # Default transparency value
+    'default_alpha': 0.45,        # Default transparency value
     'weapon_alpha': 1.0,          # Transparency for weapons
     'effect_alpha': 0.5,          # Transparency for effects
     'prop_alpha': 0.75,          # Transparency for props
     'enable_fade': True,          # Enable distance-based fade
     'fade_start': 500,           # Distance to start fading
     'fade_end': 1000            # Distance for full fade
+}
+
+# -----------------------------------------------------------------------------
+# C4 Sound Replacement Settings
+# -----------------------------------------------------------------------------
+C4_SOUND_REPLACEMENT = {
+    'enabled': True,           # Enable C4 sound replacement
+    'preserve_paths': True,    # Preserve relative paths when replacing sounds
+    'sound_file': 'npc/zombie/zombie_pain1.wav',  # Default sound file to use (HL2 zombie scream)
+    'patterns': [              # Patterns to identify C4 sound files
+        'weapons/c4',
+        'player/c4',
+        'items/c4'
+    ]
+}
+
+# -----------------------------------------------------------------------------
+# Prop Shader Settings
+# -----------------------------------------------------------------------------
+PROP_SHADER = {
+    'enabled': True,           # Enable prop shader changes
+    'use_lightmapped': True,   # Use LightmappedGeneric shader for props
+    'alpha': 0.9,              # Alpha value for props
+    'patterns': [              # Patterns to identify prop textures
+        '/props/', 
+        'models/props', 
+        '/prop_', 
+        'prop_'
+    ]
+}
+
+# -----------------------------------------------------------------------------
+# Skip Patterns
+# -----------------------------------------------------------------------------
+SKIP_PATTERNS = {
+    'enabled': True,
+    'patterns': {
+        'props': {
+            'enabled': True,
+            'patterns': [
+                '/props/', 
+                'models/props',
+                '/prop_'
+            ]
+        },
+        'ui': {
+            'enabled': True,
+            'patterns': [
+                '/ui/',
+                'vgui/',
+                'hud/'
+            ]
+        },
+        'sprites': {
+            'enabled': True,
+            'patterns': [
+                '/sprites/',
+                'sprites/',
+                'effects/sprites',
+                'effects/light',
+                'effects/flare',
+                'effects/glow',
+                'effects/flashlight',
+                'effects/lamp',
+                'particle/',
+                'particles/'
+            ]
+        }
+    }
 }
 
 # -----------------------------------------------------------------------------
@@ -612,6 +700,72 @@ WEAPON_COLORS = {
     }
 }
 
+# -----------------------------------------------------------------------------
+# Delete Patterns
+# -----------------------------------------------------------------------------
+DELETE_PATTERNS = {
+    'enabled': True,  # Master switch for deletion feature
+    'categories': {
+        'trees': {
+            'enabled': True,
+            'patterns': [
+                '/tree', '/trees', 'foliage/', 'nature/trees', 'nature/tree',
+                'props/tree', 'props/foliage', 'nature/bush', 'nature/plant',
+                'props/plant', 'props/bush', 'props/grass', 'nature/grass'
+            ]
+        },
+        'effects': {
+            'enabled': True,
+            'patterns': [
+                'effects/sprites', 'effects/light', 'effects/flare',
+                'effects/glow', 'effects/flashlight', 'effects/lamp',
+                'particle/', 'particles/', '/sprites/', 'sprites/',
+                'effects/fire', 'fire/', '/fire/', 'flame/', '/flame/',
+                'effects/explosion', 'explosion/', '/explosion/',
+                'effects/smoke', 'smoke/', '/smoke/',
+                'effects/spark', 'spark/', '/spark/',
+                'effects/beam', 'beam/', '/beam/'
+            ]
+        },
+        'ui': {
+            'enabled': True,
+            'patterns': [
+                '/ui/', 'vgui/', 'hud/', 'overlay/',
+                'menu/', '/menu/', 'scoreboard/', '/scoreboard/',
+                'background/', '/background/', 'loading/', '/loading/'
+            ]
+        },
+        'hands': {  # Renamed from hands_weapons and removed weapon patterns
+            'enabled': True,
+            'patterns': [
+                '/hands/', 'hands/', 'arms/', '/arms/'
+            ]
+        },
+        'props': {
+            'enabled': True,
+            'patterns': [
+                '/props/', 'models/props', '/prop_',
+                'furniture/', '/furniture/',
+                'props_', '_prop/', '/prop/',
+                'models/props_', 'models/prop_',
+                'props/urban/', 'props/industrial/',
+                'props/office/', 'props/house/',
+                'props/furniture/', 'props/misc/',
+                'props/junk/', 'props/debris/',
+                'props/vehicles/', 'props/machinery/',
+                'props/equipment/', 'props/tools/',
+                'props/containers/', 'props/storage/',
+                'props/construction/', 'props/pipes/',
+                'props/rooftop/', 'props/interior/',
+                'props/exterior/', 'props/alley/',
+                'props/street/', 'props/lab/',
+                'props/mall/', 'props/market/',
+                'props/warehouse/', 'props/dock/'
+            ]
+        }
+    }
+}
+
 # =============================================================================
 # ===== END CONFIGURATION =====
 # =============================================================================
@@ -633,7 +787,7 @@ class ProgressTracker:
             logging.info(f"{self.description}: {self.current}/{self.total} ({rate:.1f}/s)")
 
 def process_vpk_file(file_path: Path) -> List[str]:
-    """Process a VPK file and extract texture information."""
+    """Process a VPK file and extract texture and sound information."""
     global HAS_VPK
     
     try:
@@ -664,6 +818,7 @@ def process_vpk_file(file_path: Path) -> List[str]:
             return []
             
         texture_paths = []
+        sound_paths = []
         
         # Process each file in the VPK
         try:
@@ -672,12 +827,26 @@ def process_vpk_file(file_path: Path) -> List[str]:
                     # Check if it's a texture file
                     if file_path.lower().endswith('.vtf') and 'materials/' in file_path.lower():
                         texture_paths.append(file_path)
+                    
+                    # Check if it's a C4 sound file
+                    if C4_SOUND_REPLACEMENT['enabled'] and file_path.lower().endswith('.wav') and 'sound/' in file_path.lower():
+                        # Check if the file matches any of the C4 sound patterns
+                        file_path_lower = file_path.lower()
+                        if any(pattern.lower() in file_path_lower for pattern in C4_SOUND_REPLACEMENT['patterns']):
+                            sound_paths.append(file_path)
                 except Exception as e:
                     logging.debug(f"Error processing file {file_path} in VPK: {e}")
                     continue
         except Exception as e:
             logging.error(f"Error iterating VPK contents {file_path}: {e}")
             return []
+        
+        # Store sound paths for later processing
+        if sound_paths:
+            # Store the sound paths in a global or class variable for later processing
+            if not hasattr(process_vpk_file, 'c4_sound_paths'):
+                process_vpk_file.c4_sound_paths = []
+            process_vpk_file.c4_sound_paths.extend(sound_paths)
                 
         return texture_paths
         
@@ -689,71 +858,72 @@ def process_bsp_file(file_path: Path) -> List[str]:
     """Process a BSP file and extract embedded textures."""
     try:
         if not file_path.exists():
-            logging.error(f"File not found: {file_path}")
             return []
             
         texture_paths = []
         
         # Read BSP file in chunks
         with open(file_path, 'rb') as f:
-            # Read BSP header
-            header = f.read(8)  # BSP header is typically 8 bytes
-            
-            # Check for different BSP versions
-            header_ident = header[:4]
-            if header_ident not in [b'VBSP', b'IBSP', b'RBSP']:
-                logging.warning(f"Unknown BSP version identifier {header_ident} in {file_path}")
-                return []
-                
-            version = struct.unpack('I', header[4:8])[0]
-            logging.debug(f"BSP version: {version} for {file_path}")
-            
-            # Skip to lump directory
-            f.seek(8)
-            
-            # Read texture lump (lump 2 in Source engine)
-            texture_lump_offset = struct.unpack('I', f.read(4))[0]
-            texture_lump_size = struct.unpack('I', f.read(4))[0]
-            
-            if texture_lump_size > 0:
-                try:
-                    f.seek(texture_lump_offset)
-                    texture_data = f.read(texture_lump_size)
+            try:
+                # Read BSP header
+                header = f.read(8)  # BSP header is typically 8 bytes
+                if len(header) < 8:  # Invalid/corrupted BSP
+                    return []
                     
-                    # Process texture entries
-                    offset = 0
-                    while offset < len(texture_data):
-                        try:
-                            # Read texture name (null-terminated string)
-                            name_end = texture_data.find(b'\0', offset)
-                            if name_end == -1:
+                # Check for different BSP versions
+                header_ident = header[:4]
+                if header_ident not in [b'VBSP', b'IBSP', b'RBSP']:
+                    return []  # Silently skip files with unknown BSP versions
+                    
+                version = struct.unpack('I', header[4:8])[0]
+                
+                # Skip to lump directory
+                f.seek(8)
+                
+                # Read texture lump (lump 2 in Source engine)
+                texture_lump_offset = struct.unpack('I', f.read(4))[0]
+                texture_lump_size = struct.unpack('I', f.read(4))[0]
+                
+                if texture_lump_size > 0 and texture_lump_size < file_path.stat().st_size:
+                    try:
+                        f.seek(texture_lump_offset)
+                        texture_data = f.read(texture_lump_size)
+                        
+                        # Process texture entries
+                        offset = 0
+                        while offset < len(texture_data):
+                            try:
+                                # Read texture name (null-terminated string)
+                                name_end = texture_data.find(b'\0', offset)
+                                if name_end == -1 or name_end == offset:
+                                    break
+                                    
+                                name_bytes = texture_data[offset:name_end]
+                                try:
+                                    name = name_bytes.decode('ascii', errors='ignore').strip()
+                                    if name and name.lower().endswith('.vtf'):
+                                        # Add materials/ prefix if not present
+                                        if not name.lower().startswith('materials/'):
+                                            name = f"materials/{name}"
+                                        texture_paths.append(name)
+                                except UnicodeDecodeError:
+                                    pass
+                                    
+                                # Move to next texture entry (128-byte alignment)
+                                offset = (name_end + 128) & ~127
+                                
+                            except Exception:
                                 break
                                 
-                            name_bytes = texture_data[offset:name_end]
-                            try:
-                                name = name_bytes.decode('utf-8', errors='ignore').strip()
-                                if name and name.lower().endswith('.vtf'):
-                                    # Add materials/ prefix if not present
-                                    if not name.lower().startswith('materials/'):
-                                        name = f"materials/{name}"
-                                    texture_paths.append(name)
-                            except UnicodeDecodeError:
-                                logging.debug(f"Skipping invalid texture name in {file_path}")
-                                
-                            # Move to next texture entry (128-byte alignment)
-                            offset = (name_end + 128) & ~127
-                            
-                        except Exception as e:
-                            logging.debug(f"Error processing texture entry in {file_path}: {e}")
-                            offset += 128  # Skip to next potential entry
-                            
-                except Exception as e:
-                    logging.error(f"Error reading texture lump in {file_path}: {e}")
-                    
+                    except Exception:
+                        pass
+                        
+            except Exception:
+                pass
+                
         return texture_paths
         
-    except Exception as e:
-        logging.error(f"Error processing BSP file {file_path}: {e}")
+    except Exception:
         return []
 
 def process_gma_file(file_path: Path) -> List[str]:
@@ -766,40 +936,49 @@ def process_gma_file(file_path: Path) -> List[str]:
         texture_paths = []
         
         # Read GMA file
-        with open(file_path, 'rb') as f:
-            # Check GMA header
-            header = f.read(4)
-            if header != b'GMAD':
-                logging.error(f"Invalid GMA file format: {file_path}")
-                return []
+        try:
+            with open(file_path, 'rb') as f:
+                # Check GMA header
+                header = f.read(4)
+                if header != b'GMAD':
+                    return []  # Silently skip invalid GMA files
+                    
+                # Skip version and SteamID
+                f.seek(13)
                 
-            # Skip version and SteamID
-            f.seek(13)
+                # Read file entries
+                while True:
+                    try:
+                        # Read file path length
+                        length_data = f.read(1)
+                        if not length_data:  # End of file
+                            break
+                            
+                        path_length = length_data[0]
+                        if path_length == 0:  # End of entries
+                            break
+                            
+                        # Read file path
+                        try:
+                            file_path = f.read(path_length).decode('ascii', errors='ignore')
+                            
+                            if file_path.lower().endswith('.vtf') and 'materials/' in file_path.lower():
+                                texture_paths.append(file_path)
+                        except UnicodeDecodeError:
+                            continue  # Skip invalid paths
+                            
+                        # Skip file size and CRC
+                        f.seek(8, 1)
+                    except Exception:
+                        break  # Break on any error reading entries
+                        
+            return texture_paths
             
-            # Read file entries
-            while True:
-                # Read file path length
-                path_length = f.read(1)[0]
-                if path_length == 0:
-                    break
-                    
-                # Read file path
-                try:
-                    file_path = f.read(path_length).decode('utf-8', errors='ignore')
-                    
-                    if file_path.lower().endswith('.vtf') and 'materials/' in file_path.lower():
-                        texture_paths.append(file_path)
-                except UnicodeDecodeError:
-                    logging.debug(f"Skipping invalid file path in GMA")
-                    
-                # Skip file size and CRC
-                f.seek(8, 1)
-                    
-        return texture_paths
-        
-    except Exception as e:
-        logging.error(f"Error processing GMA file {file_path}: {e}")
-        return []
+        except Exception:
+            return []  # Return empty list on file read errors
+            
+    except Exception:
+        return []  # Return empty list on any other errors
 
 def process_file(file_path: Path) -> List[str]:
     """Process a file based on its extension."""
@@ -829,30 +1008,68 @@ def create_vmt_content(vtf_path: str) -> Tuple[Optional[str], Optional[str]]:
             
         # Get the base path without extension
         base_path = vtf_path[:-4] if vtf_path.lower().endswith('.vtf') else vtf_path
-        
-        # Determine texture type based on path
-        texture_type = None
-        for category, settings in WEAPON_COLORS.items():
-            if settings['enabled']:
-                for pattern in settings['patterns']:
-                    if pattern.lower() in base_path.lower():
-                        texture_type = category
+        path_lower = base_path.lower()
+
+        # Check if it's a weapon texture
+        weapon_patterns = [
+            '/weapons/', 'models/weapons', '/w_', '/v_', '/c_',
+            'weapon_', 'models/v_', 'models/w_', 'models/c_'
+        ]
+        is_weapon = any(pattern in path_lower for pattern in weapon_patterns)
+
+        # If it's a weapon, apply coloring without transparency
+        if is_weapon:
+            # Determine weapon category for coloring
+            color = '[1 1 1]'  # Default white
+            for category, config in WEAPON_COLORS.items():
+                if config['enabled']:  # Only check enabled categories
+                    if any(pattern.lower() in path_lower for pattern in config['patterns']):
+                        color = config['color']
+                        logging.debug(f"Applied {config['name']} color {color} to {base_path}")
                         break
-                if texture_type:
-                    break
-                    
-        # Create VMT content based on type
-        if texture_type and WEAPON_COLORS[texture_type]['enabled']:
-            # Weapon texture
-            color = WEAPON_COLORS[texture_type]['color']
-            return (f'''UnlitGeneric
+
+            return (f'''"UnlitGeneric"
+{{
+	"$basetexture"	"{base_path}"
+	"$ignorez"		1
+	"$vertexcolor"	1
+	"$vertexalpha"	1
+	"$nolod"		"1"
+	"$color2"	"{color}"
+}}''', 'weapon')
+
+        # Check if it's a prop texture
+        is_prop = PROP_SHADER['enabled'] and any(pattern in path_lower for pattern in PROP_SHADER['patterns'])
+        
+        # If it's a prop and prop shader changes are enabled, use LightmappedGeneric shader
+        if is_prop:
+            if PROP_SHADER['use_lightmapped']:
+                return (f'''"LightmappedGeneric"
+{{
+	// Original shader: BaseTimesLightmap
+$basetexture "{base_path}"
+$alpha {PROP_SHADER['alpha']}
+}}''', 'prop')
+            else:
+                return (f'''UnlitGeneric
 {{
     "$basetexture" "{base_path}"
-    "$color2" {color}
     "$translucent" "1"
-    "$alpha" "{TRANSPARENCY['weapon_alpha']}"
-}}''', texture_type)
-        elif any(x in base_path.lower() for x in ['glass', 'window']):
+    "$alpha" "{PROP_SHADER['alpha']}"
+}}''', 'prop')
+        
+        # Check if the texture should use normal VMT based on skip patterns
+        if SKIP_PATTERNS['enabled']:
+            for category, config in SKIP_PATTERNS['patterns'].items():
+                if config['enabled']:
+                    if any(pattern.lower() in path_lower for pattern in config['patterns']):
+                        return (f'''UnlitGeneric
+{{
+    "$basetexture" "{base_path}"
+}}''', 'normal')
+        
+        # For all other textures, keep the transparency effects
+        if any(x in path_lower for x in ['glass', 'window']):
             # Extra transparent texture
             return (f'''UnlitGeneric
 {{
@@ -861,7 +1078,7 @@ def create_vmt_content(vtf_path: str) -> Tuple[Optional[str], Optional[str]]:
     "$alpha" "{TRANSPARENCY['effect_alpha']}"
 }}''', 'transparent')
         else:
-            # All other textures - make them transparent by default
+            # Default transparency for other textures
             return (f'''UnlitGeneric
 {{
     "$basetexture" "{base_path}"
@@ -1080,9 +1297,9 @@ def check_and_install_dependencies():
     return True
 
 def get_available_drives():
-    """Get all available drives on Windows."""
+    """Get all available drives on Windows, checking from Z to A."""
     drives = []
-    for letter in string.ascii_uppercase:
+    for letter in reversed(string.ascii_uppercase):  # Start from Z and go backwards
         drive = f"{letter}:"
         if os.path.exists(f"{drive}\\"):
             drives.append(drive)
@@ -1094,11 +1311,11 @@ def find_steam_path():
     print("Searching for Steam installation...")
     steam_path = None
 
-    # Get all available drives except C:
-    drives = [f"{letter}:" for letter in string.ascii_uppercase 
+    # Get all available drives except C: (already in reverse order from Z to A)
+    drives = [f"{letter}:" for letter in reversed(string.ascii_uppercase) 
              if letter != 'C' and os.path.exists(f"{letter}:")]
     
-    print(f"\nSearching drives: {', '.join(drives)}")
+    print(f"\nSearching drives in order: {', '.join(drives)}")
     
     # Search common Steam paths on each drive
     common_subpaths = [
@@ -1357,26 +1574,36 @@ def find_vpk_files(game_paths, gui_callback=None, should_continue=None):
 
 def sanitize_path(path):
     """Sanitize file path by removing invalid characters and handling special cases."""
-    # Remove any quotes from the path
-    path = path.replace('"', '').replace("'", '')
-    
-    # Remove any parameters that might have been accidentally included
-    if '{' in path:
-        path = path.split('{')[0].strip()
+    try:
+        # Remove any quotes from the path
+        path = path.replace('"', '').replace("'", '')
         
-    # Replace invalid Windows filename characters
-    invalid_chars = '<>:"|?*'
-    for char in invalid_chars:
-        path = path.replace(char, '_')
+        # Remove any parameters that might have been accidentally included
+        if '{' in path:
+            path = path.split('{')[0].strip()
+            
+        # Remove null characters and non-printable characters
+        path = ''.join(char for char in path if char.isprintable() and char != '\0')
         
-    # Normalize slashes
-    path = path.replace('\\', '/').strip('/')
-    
-    # Remove any duplicate slashes
-    while '//' in path:
-        path = path.replace('//', '/')
+        # Replace invalid Windows filename characters
+        invalid_chars = '<>:"|?*'
+        for char in invalid_chars:
+            path = path.replace(char, '_')
+            
+        # Normalize slashes
+        path = path.replace('\\', '/').strip('/')
         
-    return path
+        # Remove any duplicate slashes
+        while '//' in path:
+            path = path.replace('//', '/')
+            
+        # Ensure path only contains ASCII characters
+        path = path.encode('ascii', errors='ignore').decode('ascii')
+        
+        return path
+        
+    except Exception:
+        return None  # Return None if path cannot be sanitized
 
 def create_folder_structure(base_path, file_path):
     """Create folder structure for a given path with robust permission handling."""
@@ -1686,6 +1913,7 @@ def should_backup_file(file_path: Path) -> bool:
 
 class SettingsDialog:
     def __init__(self, parent):
+        self.skip_vars = []  # Initialize skip_vars as an empty list
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Settings")
         self.dialog.geometry("500x600")
@@ -1720,13 +1948,16 @@ class SettingsDialog:
         self._add_texture_settings()
         self._add_backup_settings()
         self._add_transparency_settings()
+        self._add_weapon_color_settings()
+        self._add_c4_sound_settings()
+        self._add_prop_shader_settings()  # Add prop shader settings
+        self._add_deletion_settings()
         self._add_performance_settings()
         self._add_logging_settings()
         
         # Add save button at bottom
         save_button = ttk.Button(self.dialog, text="Save Settings", command=self._save_settings)
         save_button.pack(pady=20)
-        
         # Update scroll region
         self.settings_frame.update_idletasks()
         canvas.configure(scrollregion=canvas.bbox("all"))
@@ -1743,11 +1974,15 @@ class SettingsDialog:
     def _add_texture_settings(self):
         frame = self._add_section("Texture Processing")
         
-        # Texture quality settings
+        # Texture quality settings - ensure we're using primitive values
+        compress_value = bool(TEXTURE_QUALITY.get('compress_textures', True))
+        max_size_value = str(TEXTURE_QUALITY.get('max_texture_size', 2048))
+        mipmap_value = bool(TEXTURE_QUALITY.get('mipmap_generation', True))
+        
         self.texture_vars = {
-            'compress_textures': tk.BooleanVar(value=TEXTURE_QUALITY['compress_textures']),
-            'max_texture_size': tk.StringVar(value=str(TEXTURE_QUALITY['max_texture_size'])),
-            'mipmap_generation': tk.BooleanVar(value=TEXTURE_QUALITY['mipmap_generation'])
+            'compress_textures': tk.BooleanVar(value=compress_value),
+            'max_texture_size': tk.StringVar(value=max_size_value),
+            'mipmap_generation': tk.BooleanVar(value=mipmap_value)
         }
         
         ttk.Checkbutton(frame, text="Compress Textures", variable=self.texture_vars['compress_textures']).pack(anchor="w")
@@ -1784,11 +2019,17 @@ class SettingsDialog:
     def _add_transparency_settings(self):
         frame = self._add_section("Transparency Settings")
         
+        # Ensure we're using primitive values
+        default_alpha = str(TRANSPARENCY.get('default_alpha', 0.5))
+        weapon_alpha = str(TRANSPARENCY.get('weapon_alpha', 1.0))
+        effect_alpha = str(TRANSPARENCY.get('effect_alpha', 0.5))
+        enable_fade = bool(TRANSPARENCY.get('enable_fade', True))
+        
         self.transparency_vars = {
-            'default_alpha': tk.StringVar(value=str(TRANSPARENCY['default_alpha'])),
-            'weapon_alpha': tk.StringVar(value=str(TRANSPARENCY['weapon_alpha'])),
-            'effect_alpha': tk.StringVar(value=str(TRANSPARENCY['effect_alpha'])),
-            'enable_fade': tk.BooleanVar(value=TRANSPARENCY['enable_fade'])
+            'default_alpha': tk.StringVar(value=default_alpha),
+            'weapon_alpha': tk.StringVar(value=weapon_alpha),
+            'effect_alpha': tk.StringVar(value=effect_alpha),
+            'enable_fade': tk.BooleanVar(value=enable_fade)
         }
         
         # Create labeled entries for alpha values
@@ -1804,15 +2045,187 @@ class SettingsDialog:
             
         ttk.Checkbutton(frame, text="Enable Distance Fade", variable=self.transparency_vars['enable_fade']).pack(anchor="w")
         
+    def _add_weapon_color_settings(self):
+        """Add weapon color settings section."""
+        frame = self._add_section("Weapon Colors")
+        
+        # Create notebook for weapon categories
+        notebook = ttk.Notebook(frame)
+        notebook.pack(fill="both", expand=True, pady=10)
+        
+        # Initialize weapon color variables
+        self.weapon_vars = {}
+        
+        # Add tab for each weapon category
+        for category, config in WEAPON_COLORS.items():
+            tab = ttk.Frame(notebook)
+            notebook.add(tab, text=config['name'])
+            
+            # Enable checkbox for category - ensure we're using primitive values
+            enabled_value = bool(config.get('enabled', False))
+            color_value = str(config.get('color', ''))
+            
+            self.weapon_vars[category] = {
+                'enabled': tk.BooleanVar(value=enabled_value),
+                'color': tk.StringVar(value=color_value),
+                'patterns': []
+            }
+            
+            # Enable/disable checkbox
+            ttk.Checkbutton(
+                tab,
+                text=f"Enable {config['name']} Coloring",
+                variable=self.weapon_vars[category]['enabled']
+            ).pack(anchor="w", pady=5)
+            
+            # Color input
+            color_frame = ttk.Frame(tab)
+            color_frame.pack(fill="x", pady=5)
+            ttk.Label(color_frame, text="Color (RGB):").pack(side="left", padx=5)
+            ttk.Entry(
+                color_frame,
+                textvariable=self.weapon_vars[category]['color'],
+                width=15
+            ).pack(side="left", padx=5)
+            
+            # Pattern list
+            patterns_frame = ttk.LabelFrame(tab, text="Patterns", padding=5)
+            patterns_frame.pack(fill="both", expand=True)
+            
+            # Add existing patterns - ensure we're using a list of strings
+            patterns = config.get('patterns', [])
+            if not isinstance(patterns, list):
+                patterns = []
+                
+            for pattern in patterns:
+                var = tk.StringVar(value=str(pattern))
+                self.weapon_vars[category]['patterns'].append(var)
+                entry = ttk.Entry(patterns_frame, textvariable=var)
+                entry.pack(fill="x", pady=2)
+            
+            # Add button for new patterns
+            ttk.Button(
+                patterns_frame,
+                text="Add Pattern",
+                command=lambda c=category: self._add_weapon_pattern(c)
+            ).pack(pady=5)
+
+    def _add_weapon_pattern(self, category):
+        """Add a new pattern entry to the specified weapon category."""
+        var = tk.StringVar()
+        self.weapon_vars[category]['patterns'].append(var)
+        notebook = self.dialog.winfo_children()[0].winfo_children()[-1]
+        tab = notebook.select()
+        patterns_frame = notebook.winfo_children()[notebook.index(tab)].winfo_children()[2]  # Adjust index based on frame order
+        ttk.Entry(patterns_frame, textvariable=var).pack(fill="x", pady=2)
+
+    def _add_deletion_settings(self):
+        """Add deletion settings section."""
+        frame = self._add_section("VMT Deletion Settings")
+        
+        # Create a checkbox frame for all deletion checkboxes
+        checkbox_frame = ttk.LabelFrame(frame, text="Deletion Options", padding=10)
+        checkbox_frame.pack(fill="x", expand=False, pady=5)
+        
+        # Master enable switch - ensure we're using a primitive boolean value
+        master_enabled = bool(DELETE_PATTERNS.get('enabled', True))
+        self.deletion_vars = {
+            'enabled': tk.BooleanVar(value=master_enabled)
+        }
+        
+        # Add master checkbox
+        ttk.Checkbutton(
+            checkbox_frame, 
+            text="Enable VMT Deletion (Master Switch)", 
+            variable=self.deletion_vars['enabled']
+        ).pack(anchor="w", pady=5)
+        
+        # Add divider
+        ttk.Separator(checkbox_frame, orient="horizontal").pack(fill="x", pady=5)
+        
+        # Add category checkboxes all together
+        self.deletion_vars['categories'] = {}
+        for category, config in DELETE_PATTERNS['categories'].items():
+            # Set default values for specific categories
+            category_enabled = bool(config.get('enabled', True))
+            
+            # Override defaults for trees and props - set them to off by default
+            if category.lower() == 'trees' or category.lower() == 'props':
+                category_enabled = False
+                # Also update the global setting to match the UI
+                if category in DELETE_PATTERNS['categories']:
+                    DELETE_PATTERNS['categories'][category]['enabled'] = False
+            
+            # Initialize category variables
+            self.deletion_vars['categories'][category] = {
+                'enabled': tk.BooleanVar(value=category_enabled),
+                'patterns': []
+            }
+            
+            # Add category checkbox
+            ttk.Checkbutton(
+                checkbox_frame, 
+                text=f"Delete {category.replace('_', ' ').title()} VMTs", 
+                variable=self.deletion_vars['categories'][category]['enabled']
+            ).pack(anchor="w", pady=2)
+        
+        # Create patterns notebook (separate from checkboxes)
+        patterns_notebook = ttk.Notebook(frame)
+        patterns_notebook.pack(fill="both", expand=True, pady=10)
+        
+        # Add tab for each category's patterns
+        for category, config in DELETE_PATTERNS['categories'].items():
+            # Create a tab for this category's patterns
+            tab = ttk.Frame(patterns_notebook)
+            patterns_notebook.add(tab, text=category.replace('_', ' ').title())
+            
+            # Pattern list
+            patterns_frame = ttk.LabelFrame(tab, text=f"{category.replace('_', ' ').title()} Patterns", padding=5)
+            patterns_frame.pack(fill="both", expand=True)
+            
+            # Add existing patterns - ensure we're using a list of strings
+            patterns = config.get('patterns', [])
+            if not isinstance(patterns, list):
+                patterns = []
+                
+            for pattern in patterns:
+                var = tk.StringVar(value=str(pattern))
+                self.deletion_vars['categories'][category]['patterns'].append(var)
+                entry = ttk.Entry(patterns_frame, textvariable=var)
+                entry.pack(fill="x", pady=2)
+            
+            # Add button for new patterns
+            ttk.Button(
+                patterns_frame, 
+                text="Add Pattern", 
+                command=lambda c=category: self._add_deletion_pattern(c)
+            ).pack(pady=5)
+
+    def _add_deletion_pattern(self, category):
+        """Add a new pattern entry to the specified deletion category."""
+        var = tk.StringVar()
+        self.deletion_vars['categories'][category]['patterns'].append(var)
+        notebook = self.dialog.winfo_children()[0].winfo_children()[-1]
+        tab = notebook.select()
+        patterns_frame = notebook.winfo_children()[notebook.index(tab)].winfo_children()[1]
+        ttk.Entry(patterns_frame, textvariable=var).pack(fill="x", pady=2)
+
     def _add_performance_settings(self):
         frame = self._add_section("Performance Settings")
         
+        # Ensure we're using primitive values
+        cache_enabled = bool(PERFORMANCE.get('cache_enabled', True))
+        cache_size = str(PERFORMANCE.get('cache_size', 512))
+        preload_textures = bool(PERFORMANCE.get('preload_textures', True))
+        batch_processing = bool(PERFORMANCE.get('batch_processing', True))
+        batch_size = str(PERFORMANCE.get('batch_size', 100))
+        
         self.performance_vars = {
-            'cache_enabled': tk.BooleanVar(value=PERFORMANCE['cache_enabled']),
-            'cache_size': tk.StringVar(value=str(PERFORMANCE['cache_size'])),
-            'preload_textures': tk.BooleanVar(value=PERFORMANCE['preload_textures']),
-            'batch_processing': tk.BooleanVar(value=PERFORMANCE['batch_processing']),
-            'batch_size': tk.StringVar(value=str(PERFORMANCE['batch_size']))
+            'cache_enabled': tk.BooleanVar(value=cache_enabled),
+            'cache_size': tk.StringVar(value=cache_size),
+            'preload_textures': tk.BooleanVar(value=preload_textures),
+            'batch_processing': tk.BooleanVar(value=batch_processing),
+            'batch_size': tk.StringVar(value=batch_size)
         }
         
         ttk.Checkbutton(frame, text="Enable Cache", variable=self.performance_vars['cache_enabled']).pack(anchor="w")
@@ -1833,10 +2246,15 @@ class SettingsDialog:
     def _add_logging_settings(self):
         frame = self._add_section("Logging Settings")
         
+        # Ensure we're using primitive values
+        log_to_file = bool(LOGGING.get('log_to_file', True))
+        max_log_size = str(LOGGING.get('max_log_size', 10))
+        max_log_files = str(LOGGING.get('max_log_files', 5))
+        
         self.logging_vars = {
-            'log_to_file': tk.BooleanVar(value=LOGGING['log_to_file']),
-            'max_log_size': tk.StringVar(value=str(LOGGING['max_log_size'])),
-            'max_log_files': tk.StringVar(value=str(LOGGING['max_log_files']))
+            'log_to_file': tk.BooleanVar(value=log_to_file),
+            'max_log_size': tk.StringVar(value=max_log_size),
+            'max_log_files': tk.StringVar(value=max_log_files)
         }
         
         ttk.Checkbutton(frame, text="Log to File", variable=self.logging_vars['log_to_file']).pack(anchor="w")
@@ -1851,6 +2269,181 @@ class SettingsDialog:
         ttk.Label(files_frame, text="Max Log Files:").pack(side=tk.LEFT)
         ttk.Entry(files_frame, textvariable=self.logging_vars['max_log_files'], width=10).pack(side=tk.LEFT, padx=5)
         
+    def _add_c4_sound_settings(self):
+        """Add C4 sound replacement settings section."""
+        frame = self._add_section("C4 Sound Replacement")
+        
+        # Enable/disable checkbox - ensure we're using a primitive boolean value
+        enabled_value = bool(C4_SOUND_REPLACEMENT.get('enabled', True))
+        self.c4_sound_enabled_var = tk.BooleanVar(value=enabled_value)
+        ttk.Checkbutton(
+            frame,
+            text="Enable C4 Sound Replacement",
+            variable=self.c4_sound_enabled_var
+        ).pack(anchor="w", pady=5)
+        
+        # Preserve paths checkbox - ensure we're using a primitive boolean value
+        preserve_paths_value = bool(C4_SOUND_REPLACEMENT.get('preserve_paths', True))
+        self.c4_sound_preserve_paths_var = tk.BooleanVar(value=preserve_paths_value)
+        ttk.Checkbutton(
+            frame,
+            text="Preserve Relative Paths",
+            variable=self.c4_sound_preserve_paths_var
+        ).pack(anchor="w", pady=5)
+        
+        # Sound file selection
+        sound_file_frame = ttk.Frame(frame)
+        sound_file_frame.pack(fill="x", pady=5)
+        ttk.Label(sound_file_frame, text="Replacement Sound:").pack(side="left", padx=5)
+        
+        # Get the sound file path with a default
+        sound_file = str(C4_SOUND_REPLACEMENT.get('sound_file', 'npc/zombie/zombie_pain1.wav'))
+        self.c4_sound_file_var = tk.StringVar(value=sound_file)
+        ttk.Entry(sound_file_frame, textvariable=self.c4_sound_file_var, width=30).pack(side="left", padx=5)
+        
+        # Add help text for sound file
+        ttk.Label(
+            frame, 
+            text="Tip: Try sounds like 'npc/zombie/zombie_pain1.wav' or\n'npc/headcrab/headcrab_scream1.wav' from HL2 VPK files.",
+            justify="left",
+            font=("TkDefaultFont", 8, "italic")
+        ).pack(anchor="w", pady=2)
+        
+        # Pattern list
+        patterns_frame = ttk.LabelFrame(frame, text="Sound Patterns", padding=5)
+        patterns_frame.pack(fill="both", expand=True, pady=5)
+        
+        # Add existing patterns - ensure we're using a list of strings
+        self.c4_sound_patterns_vars = []
+        patterns = C4_SOUND_REPLACEMENT.get('patterns', [])
+        if not isinstance(patterns, list):
+            patterns = []
+            
+        for pattern in patterns:
+            var = tk.StringVar(value=str(pattern))
+            self.c4_sound_patterns_vars.append(var)
+            entry = ttk.Entry(patterns_frame, textvariable=var)
+            entry.pack(fill="x", pady=2)
+        
+        # Add button for new patterns
+        ttk.Button(
+            patterns_frame,
+            text="Add Pattern",
+            command=self._add_c4_sound_pattern
+        ).pack(pady=5)
+        
+        # Help text
+        ttk.Label(
+            frame, 
+            text="This will replace all C4 sounds as direct WAV files\nin the sounds folder while preserving relative paths.",
+            justify="center"
+        ).pack(pady=10)
+    
+    def _add_c4_sound_pattern(self):
+        """Add a new pattern entry for C4 sound replacement."""
+        var = tk.StringVar(value="")
+        self.c4_sound_patterns_vars.append(var)
+        
+        # Find the patterns frame
+        for child in self.settings_frame.winfo_children():
+            if isinstance(child, ttk.Labelframe) and child.winfo_children() and \
+               "C4 Sound Replacement" in child.winfo_children()[0].cget("text"):
+                for subchild in child.winfo_children():
+                    if isinstance(subchild, ttk.Labelframe) and "Sound Patterns" in subchild.cget("text"):
+                        entry = ttk.Entry(subchild, textvariable=var)
+                        entry.pack(fill="x", pady=2)
+                        entry.focus_set()
+                        break
+    
+    def _add_prop_shader_settings(self):
+        """Add prop shader settings section."""
+        frame = self._add_section("Prop Shader Settings")
+        
+        # Enable/disable checkbox - ensure we're using a primitive boolean value
+        enabled_value = bool(PROP_SHADER.get('enabled', True))
+        self.prop_shader_enabled_var = tk.BooleanVar(value=enabled_value)
+        ttk.Checkbutton(
+            frame,
+            text="Enable Prop Shader Changes",
+            variable=self.prop_shader_enabled_var
+        ).pack(anchor="w", pady=5)
+        
+        # Shader type selection
+        shader_frame = ttk.Frame(frame)
+        shader_frame.pack(fill="x", pady=5)
+        
+        # Ensure we're using a primitive boolean value
+        lightmapped_value = bool(PROP_SHADER.get('use_lightmapped', True))
+        self.prop_shader_lightmapped_var = tk.BooleanVar(value=lightmapped_value)
+        ttk.Checkbutton(
+            shader_frame,
+            text="Use LightmappedGeneric Shader",
+            variable=self.prop_shader_lightmapped_var
+        ).pack(anchor="w")
+        
+        # Alpha value
+        alpha_frame = ttk.Frame(frame)
+        alpha_frame.pack(fill="x", pady=5)
+        ttk.Label(alpha_frame, text="Alpha Value:").pack(side="left", padx=5)
+        
+        # Ensure we're using a primitive float value converted to string
+        try:
+            alpha_value = float(PROP_SHADER.get('alpha', 0.9))
+        except (ValueError, TypeError):
+            alpha_value = 0.9
+        self.prop_shader_alpha_var = tk.StringVar(value=str(alpha_value))
+        ttk.Entry(
+            alpha_frame,
+            textvariable=self.prop_shader_alpha_var,
+            width=10
+        ).pack(side="left", padx=5)
+        
+        # Pattern list
+        patterns_frame = ttk.LabelFrame(frame, text="Prop Patterns", padding=5)
+        patterns_frame.pack(fill="both", expand=True, pady=5)
+        
+        # Add existing patterns - ensure we're using a list of strings
+        self.prop_shader_patterns_vars = []
+        patterns = PROP_SHADER.get('patterns', [])
+        if not isinstance(patterns, list):
+            patterns = []
+        
+        for pattern in patterns:
+            var = tk.StringVar(value=str(pattern))
+            self.prop_shader_patterns_vars.append(var)
+            entry = ttk.Entry(patterns_frame, textvariable=var)
+            entry.pack(fill="x", pady=2)
+        
+        # Add button for new patterns
+        ttk.Button(
+            patterns_frame,
+            text="Add Pattern",
+            command=self._add_prop_shader_pattern
+        ).pack(pady=5)
+        
+        # Help text
+        ttk.Label(
+            frame, 
+            text="This will apply the LightmappedGeneric shader to props\nwith the specified alpha value.",
+            justify="center"
+        ).pack(pady=10)
+    
+    def _add_prop_shader_pattern(self):
+        """Add a new pattern entry for prop shader."""
+        var = tk.StringVar(value="")
+        self.prop_shader_patterns_vars.append(var)
+        
+        # Find the patterns frame
+        for child in self.settings_frame.winfo_children():
+            if isinstance(child, ttk.Labelframe) and child.winfo_children() and \
+               "Prop Shader Settings" in child.winfo_children()[0].cget("text"):
+                for subchild in child.winfo_children():
+                    if isinstance(subchild, ttk.Labelframe) and "Prop Patterns" in subchild.cget("text"):
+                        entry = ttk.Entry(subchild, textvariable=var)
+                        entry.pack(fill="x", pady=2)
+                        entry.focus_set()
+                        break
+    
     def _save_settings(self):
         """Save all settings to global configuration"""
         try:
@@ -1894,7 +2487,66 @@ class SettingsDialog:
                 'max_log_files': int(self.logging_vars['max_log_files'].get())
             })
             
-            messagebox.showinfo("Success", "Settings saved successfully!")
+            # Save skip patterns settings
+            if isinstance(self.skip_vars, dict):
+                SKIP_PATTERNS['enabled'] = self.skip_vars.get('enabled', False)
+                for category, vars in self.skip_vars.get('patterns', {}).items():
+                    if isinstance(vars, dict):
+                        SKIP_PATTERNS['patterns'][category]['enabled'] = vars.get('enabled', False)
+                        SKIP_PATTERNS['patterns'][category]['patterns'] = [
+                            str(var.get()) for var in vars.get('patterns', [])
+                            if var.get() and str(var.get()).strip()  # Only save non-empty patterns
+                        ]
+            
+            # Save deletion settings
+            if isinstance(self.deletion_vars, dict):
+                DELETE_PATTERNS['enabled'] = self.deletion_vars.get('enabled', False)
+                for category, vars in self.deletion_vars.get('categories', {}).items():
+                    if isinstance(vars, dict):
+                        DELETE_PATTERNS['categories'][category]['enabled'] = vars.get('enabled', False)
+                        DELETE_PATTERNS['categories'][category]['patterns'] = [
+                            str(var.get()) for var in vars.get('patterns', [])
+                            if var.get() and str(var.get()).strip()  # Only save non-empty patterns
+                        ]
+            
+            # Save weapon color settings
+            if isinstance(self.weapon_vars, dict):
+                for category, vars in self.weapon_vars.items():
+                    if isinstance(vars, dict):
+                        WEAPON_COLORS[category]['enabled'] = vars.get('enabled', False)
+                        WEAPON_COLORS[category]['color'] = vars.get('color', '')
+                        WEAPON_COLORS[category]['patterns'] = [
+                            str(var.get()) for var in vars.get('patterns', [])
+                            if var.get() and str(var.get()).strip()  # Only save non-empty patterns
+                        ]
+        
+            # Save C4 sound replacement settings
+            C4_SOUND_REPLACEMENT['enabled'] = self.c4_sound_enabled_var.get()
+            C4_SOUND_REPLACEMENT['preserve_paths'] = self.c4_sound_preserve_paths_var.get()
+            C4_SOUND_REPLACEMENT['sound_file'] = self.c4_sound_file_var.get().strip()
+            C4_SOUND_REPLACEMENT['patterns'] = [
+                str(var.get()) for var in self.c4_sound_patterns_vars
+                if var.get() and str(var.get()).strip()  # Only save non-empty patterns
+            ]
+        
+            # Save prop shader settings
+            PROP_SHADER['enabled'] = self.prop_shader_enabled_var.get()
+            PROP_SHADER['use_lightmapped'] = self.prop_shader_lightmapped_var.get()
+            try:
+                PROP_SHADER['alpha'] = float(self.prop_shader_alpha_var.get())
+            except ValueError:
+                PROP_SHADER['alpha'] = 0.9  # Default to 0.9 if invalid value
+            PROP_SHADER['patterns'] = [
+                str(var.get()) for var in self.prop_shader_patterns_vars
+                if var.get() and str(var.get()).strip()  # Only save non-empty patterns
+            ]
+        
+            # Save settings to file
+            if save_settings_to_file():
+                messagebox.showinfo("Success", "Settings saved successfully and stored in log folder!")
+            else:
+                messagebox.showinfo("Success", "Settings saved successfully, but could not be stored in log folder.")
+        
             self.dialog.destroy()
             
         except ValueError as e:
@@ -1911,7 +2563,7 @@ class TextureExtractorGUI:
         self.window.title(f"Texture Extractor v{VERSION}")
         self.window.geometry("400x500")
         self.window.resizable(False, False)
-        logging.info("Main window created")
+        logging.info(f"Main window created with title: Texture Extractor v{VERSION}")
         
         # Center the window on screen
         screen_width = self.window.winfo_screenwidth()
@@ -1932,6 +2584,9 @@ class TextureExtractorGUI:
         self.total_files = 0
         self.start_time = None
         self.last_gui_update = 0
+        
+        # Initialize C4 sound replacement counter
+        self.c4_sounds_replaced = 0
         self.gui_update_interval = 100
         self.progress_var = tk.DoubleVar()
         self.errors = 0
@@ -1943,6 +2598,11 @@ class TextureExtractorGUI:
         self.vpk_files = None
         self.preload_complete = False
         self.preload_thread = None
+        
+        # Add VMT counter and deletion counter to state variables
+        self.vmt_files_created = 0
+        self.vmt_files_deleted = 0  # New counter for deleted VMTs
+        self.c4_sounds_replaced = 0  # Counter for replaced C4 sounds
         
         try:
             # Create main container
@@ -2019,7 +2679,7 @@ class TextureExtractorGUI:
             button_frame.grid(row=1, column=0, columnspan=2, pady=(0, 10), sticky="ew")
             button_frame.grid_columnconfigure(0, weight=1)
             button_frame.grid_columnconfigure(1, weight=1)
-            button_frame.grid_columnconfigure(2, weight=1)  # Add column for settings button
+            button_frame.grid_columnconfigure(2, weight=1)
 
             # Buttons with consistent width
             button_width = 15
@@ -2040,7 +2700,6 @@ class TextureExtractorGUI:
             )
             self.stop_button.grid(row=0, column=1, padx=5)
 
-            # Add settings button
             self.settings_button = ttk.Button(
                 button_frame,
                 text="Settings",
@@ -2049,14 +2708,27 @@ class TextureExtractorGUI:
             )
             self.settings_button.grid(row=0, column=2, padx=5)
 
+            # Status frame to contain both status and time
+            status_frame = ttk.Frame(self.main_container)
+            status_frame.grid(row=2, column=0, columnspan=2, pady=(10, 10), sticky="ew")
+            status_frame.grid_columnconfigure(0, weight=1)
+
             # Status label with proper wrapping
             self.status_label = ttk.Label(
-                self.main_container, 
+                status_frame, 
                 text="Ready to process...",
                 wraplength=350,
                 justify="center"
             )
-            self.status_label.grid(row=2, column=0, columnspan=2, pady=(10, 10), sticky="ew")
+            self.status_label.grid(row=0, column=0, sticky="ew")
+
+            # Time label
+            self.time_label = ttk.Label(
+                status_frame,
+                text="Time: 0:00:00",
+                justify="center"
+            )
+            self.time_label.grid(row=1, column=0, sticky="ew", pady=(5, 0))
 
             # Progress bar with fixed width
             self.progress_bar = ttk.Progressbar(
@@ -2083,6 +2755,9 @@ class TextureExtractorGUI:
             stats_to_show = [
                 ('Files Found:', 'found', '0'),
                 ('Files Processed:', 'files', '0'),
+                ('VMTs Created:', 'vmts', '0'),
+                ('VMTs Deleted:', 'deleted', '0'),  # Add deletion counter
+                ('C4 Sounds Replaced:', 'c4_sounds', '0'),  # Add C4 sounds counter
                 ('Success Rate:', 'rate', '0%'),
                 ('Errors:', 'errors', '0'),
                 ('Processing Time:', 'time', '0:00:00')
@@ -2127,6 +2802,9 @@ class TextureExtractorGUI:
             # Update file counts
             self.stats_labels['found'].config(text=str(self.files_found))
             self.stats_labels['files'].config(text=str(self.processed_files))
+            self.stats_labels['vmts'].config(text=str(self.vmt_files_created))
+            self.stats_labels['deleted'].config(text=str(self.vmt_files_deleted))  # Add deletion counter
+            self.stats_labels['c4_sounds'].config(text=str(self.c4_sounds_replaced))  # Add C4 sounds counter
             
             # Update success rate
             if self.processed_files > 0:
@@ -2158,23 +2836,43 @@ class TextureExtractorGUI:
 
     def _update_gui(self):
         """Update GUI elements periodically"""
-        current_time = time.time() * 1000
-        if current_time - self.last_gui_update >= self.gui_update_interval:
+        try:
+            current_time = time.time()
+            
+            # Update time display independently
             if self.is_processing and self.start_time:
-                elapsed_time = time.time() - self.start_time
-                self.status_label.config(text=f"Processing... Time: {elapsed_time:.1f}s")
-                
-                if self.total_files > 0:
-                    progress = (self.processed_files / self.total_files) * 100
-                    self.progress_bar["value"] = progress
+                elapsed_time = current_time - self.start_time
+                hours = int(elapsed_time // 3600)
+                minutes = int((elapsed_time % 3600) // 60)
+                seconds = int(elapsed_time % 60)
+                self.time_label.config(text=f"Time: {hours:02d}:{minutes:02d}:{seconds:02d}")
+            
+            # Force update if enough time has passed
+            if current_time - self.last_update >= self.update_threshold:
+                if self.is_processing:
+                    if self.total_files > 0:
+                        progress = (self.processed_files / self.total_files) * 100
+                        self.progress_bar["value"] = progress
                     
-                self.files_found_label.config(text=f"Files Found: {self.files_found}")
-                self.processed_label.config(text=f"Processed: {self.processed_files}/{self.total_files}")
+                    self.files_found_label.config(text=f"Files Found: {self.files_found}")
+                    self.processed_label.config(text=f"Processed: {self.processed_files}/{self.total_files}")
+                    self._update_stats()
+                
+                # Ensure start button is enabled if not processing
+                if not self.is_processing and self.start_button['state'] == 'disabled':
+                    self.start_button.config(state="normal")
+                    logging.info("Re-enabled start button")
+                
+                self.window.update_idletasks()
+                self.last_update = current_time
             
-            self.window.update_idletasks()
-            self.last_gui_update = current_time
+            # Schedule next update
+            self.window.after(10, self._update_gui)
             
-        self.window.after(10, self._update_gui)  # Schedule next update
+        except Exception as e:
+            logging.error(f"Error updating GUI: {e}")
+            # Ensure we keep updating even if there's an error
+            self.window.after(10, self._update_gui)
 
     def _process_task(self):
         """Process files using preloaded data."""
@@ -2185,6 +2883,7 @@ class TextureExtractorGUI:
 
             self.start_time = time.time()
             self.errors = 0
+            last_progress_update = time.time()
             
             # Get Garry's Mod path for VMT creation
             gmod_path = self.game_paths.get("GarrysMod")
@@ -2195,12 +2894,16 @@ class TextureExtractorGUI:
             gmod_materials = gmod_path / "garrysmod" / "materials"
             all_texture_paths = []
             
-            # Process VPK files in chunks
-            chunk_size = 5
+            # Update initial status
+            self.status_label.config(text="Scanning VPK files...")
+            self.window.update_idletasks()
+            
+            # Process VPK files in smaller chunks for more frequent updates
+            chunk_size = 2  # Reduced chunk size for more frequent updates
             vpk_chunks = [self.vpk_files[i:i + chunk_size] for i in range(0, len(self.vpk_files), chunk_size)]
             
             # Process each chunk
-            for vpk_chunk in vpk_chunks:
+            for chunk_index, vpk_chunk in enumerate(vpk_chunks):
                 if not self.is_processing:
                     break
                     
@@ -2209,35 +2912,57 @@ class TextureExtractorGUI:
                         break
                         
                     try:
+                        current_time = time.time()
+                        if current_time - last_progress_update >= 0.5:  # Update less frequently
+                            self.status_label.config(text=f"Processing VPK file {self.processed_files + 1} of {self.total_files}")
+                            if self.total_files > 0:
+                                progress = (self.processed_files / self.total_files) * 50
+                                self.progress_bar["value"] = progress
+                            self._update_stats()
+                            self.window.update_idletasks()
+                            last_progress_update = current_time
+                            
                         textures = process_file(path)
                         if textures:
                             all_texture_paths.extend(textures)
                         self.processed_files += 1
                         
-                        if self.total_files > 0:
-                            progress = (self.processed_files / self.total_files) * 50
-                            self.progress_bar["value"] = progress
-                            self._update_stats()
-                            self.window.update_idletasks()
                     except Exception as e:
                         logging.error(f"Error processing {path}: {str(e)}")
                         self.errors += 1
                 
-                time.sleep(0.01)
+                # Force update after each chunk
+                self._update_stats()
+                self.window.update_idletasks()
+                time.sleep(0.01)  # Small delay to prevent GUI freezing
             
             # Create VMT files if we have textures
             if all_texture_paths and self.is_processing:
-                self.status_label.config(text=f"Creating VMT files for {len(all_texture_paths)} textures...")
+                total_textures = len(all_texture_paths)
+                self.status_label.config(text=f"Creating VMT files (0/{total_textures})")
                 self.window.update_idletasks()
                 
                 vmt_count = 0
-                total_textures = len(all_texture_paths)
+                delete_count = 0
+                last_vmt_update = time.time()
+                created_vmts = []  # Keep track of created VMT paths
                 
                 for vtf_path in sorted(all_texture_paths):
                     if not self.is_processing:
                         break
                         
                     try:
+                        current_time = time.time()
+                        if current_time - last_vmt_update >= 0.5:
+                            self.status_label.config(text=f"Creating VMT files ({vmt_count}/{total_textures})")
+                            progress = 50 + (vmt_count / total_textures) * 50
+                            self.progress_bar["value"] = progress
+                            self.vmt_files_created = vmt_count
+                            self.vmt_files_deleted = delete_count
+                            self._update_stats()
+                            self.window.update_idletasks()
+                            last_vmt_update = current_time
+                            
                         vmt_path = vtf_path.replace('.vtf', '.vmt')
                         full_path = create_folder_structure(gmod_materials, vmt_path)
                         
@@ -2252,26 +2977,132 @@ class TextureExtractorGUI:
                                     f.write(vmt_content)
                                 
                                 vmt_count += 1
-                                progress = 50 + (vmt_count / total_textures) * 50
-                                self.progress_bar["value"] = progress
+                                created_vmts.append((full_path, vtf_path))  # Store created VMT path
                                 
-                                if vmt_count % 10 == 0:
-                                    self.status_label.config(text=f"Created {vmt_count} of {total_textures} VMT files...")
-                                    self._update_stats()
-                                    self.window.update_idletasks()
                     except Exception as e:
                         logging.error(f"Error creating VMT for {vtf_path}: {e}")
                         self.errors += 1
                 
+                # After creating all VMTs, delete the ones we don't want
+            
+            # Process C4 sound files if enabled
+            if C4_SOUND_REPLACEMENT['enabled'] and hasattr(process_vpk_file, 'c4_sound_paths') and process_vpk_file.c4_sound_paths:
+                c4_sound_paths = process_vpk_file.c4_sound_paths
+                total_sounds = len(c4_sound_paths)
+                
+                if total_sounds > 0:
+                    self.status_label.config(text=f"Replacing C4 sounds (0/{total_sounds})")
+                    self.window.update_idletasks()
+                    
+                    sound_count = 0
+                    last_sound_update = time.time()
+                    gmod_sounds = gmod_path / "garrysmod" / "sound"
+                    
+                    for sound_path in sorted(c4_sound_paths):
+                        if not self.is_processing:
+                            break
+                            
+                        try:
+                            current_time = time.time()
+                            if current_time - last_sound_update >= 0.5:
+                                self.status_label.config(text=f"Replacing C4 sounds ({sound_count}/{total_sounds})")
+                                self.c4_sounds_replaced = sound_count
+                                self._update_stats()
+                                self.window.update_idletasks()
+                                last_sound_update = current_time
+                            
+                            # Extract the sound file from the VPK
+                            for vpk_path in self.vpk_files:
+                                try:
+                                    vpk_package = vpk.open(str(vpk_path))
+                                    if sound_path in vpk_package:
+                                        # Get the sound file data
+                                        sound_data = vpk_package[sound_path].read()
+                                        
+                                        # Create the output path
+                                        if 'sound/' in sound_path.lower():
+                                            # Remove 'sound/' prefix if present to get the relative path
+                                            rel_path = sound_path[sound_path.lower().find('sound/') + 6:]
+                                        else:
+                                            rel_path = sound_path
+                                        
+                                        # Create the output directory structure
+                                        output_path = gmod_sounds / rel_path
+                                        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                                        
+                                        # Write the sound file
+                                        with open(output_path, 'wb') as f:
+                                            f.write(sound_data)
+                                        
+                                        sound_count += 1
+                                        break
+                                except Exception as e:
+                                    logging.error(f"Error extracting sound file {sound_path}: {e}")
+                                    continue
+                        except Exception as e:
+                            logging.error(f"Error replacing C4 sound {sound_path}: {e}")
+                            self.errors += 1
+                    
+                    # Update final count
+                    self.c4_sounds_replaced = sound_count
+                    self._update_stats()
+            
+            # After creating all VMTs, delete the ones we don't want
                 if self.is_processing:
-                    self.status_label.config(text=f"Processing completed! Created {vmt_count} VMT files.")
+                    self.status_label.config(text="Cleaning up unwanted VMTs...")
+                    self.window.update_idletasks()
+                    
+                    for full_path, vtf_path in created_vmts:
+                        if self._should_delete_vmt(vtf_path):
+                            try:
+                                if os.path.exists(full_path):
+                                    os.remove(full_path)
+                                    delete_count += 1
+                                    self.vmt_files_deleted = delete_count
+                                    self._update_stats()
+                            except Exception as e:
+                                logging.error(f"Error deleting VMT {full_path}: {e}")
+                
+                if self.is_processing:
+                    # Format completion message
+                    elapsed = time.time() - self.start_time
+                    hours = int(elapsed // 3600)
+                    minutes = int((elapsed % 3600) // 60)
+                    seconds = int(elapsed % 60)
+                    time_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+                    
+                    completion_msg = (
+                        f"Operation Complete!\n"
+                        f"Created: {vmt_count:,} VMTs\n"
+                        f"Deleted: {delete_count:,} VMTs\n"
+                        f"Time: {time_str}"
+                    )
+                    
+                    self.status_label.config(
+                        text=completion_msg,
+                        justify=tk.CENTER,
+                        font=('Helvetica', 10, 'bold')
+                    )
                 else:
-                    self.status_label.config(text="Processing stopped.")
+                    self.status_label.config(
+                        text="Processing stopped",
+                        justify=tk.CENTER,
+                        font=('Helvetica', 10)
+                    )
             else:
                 if self.is_processing:
-                    self.status_label.config(text="No textures found to process.")
+                    self.status_label.config(
+                        text="No textures found to process",
+                        justify=tk.CENTER,
+                        font=('Helvetica', 10)
+                    )
                 else:
-                    self.status_label.config(text="Processing stopped.")
+                    self.status_label.config(
+                        text="Processing stopped",
+                        justify=tk.CENTER,
+                        font=('Helvetica', 10)
+                    )
+                    
         except Exception as e:
             self.status_label.config(text=f"Error: {str(e)}")
             logging.error(f"Processing error: {str(e)}")
@@ -2280,6 +3111,7 @@ class TextureExtractorGUI:
             self.is_processing = False
             self.start_button.config(state="normal")
             self.stop_button.config(state="disabled")
+            self.settings_button.config(state="normal")  # Re-enable settings button
             self._update_stats()
             self.window.update_idletasks()
 
@@ -2297,6 +3129,7 @@ class TextureExtractorGUI:
             self.start_time = time.time()
             self.start_button.config(state="disabled")
             self.stop_button.config(state="normal")
+            self.settings_button.config(state="disabled")  # Disable settings button during processing
             self.status_label.config(text="Starting processing...")
             
             self.processing_thread = threading.Thread(target=self._process_task)
@@ -2307,35 +3140,22 @@ class TextureExtractorGUI:
         """Stop the processing task."""
         if self.is_processing:
             self.is_processing = False
-            self.status_label.config(text="Stopping...")
-            self.stop_button.config(state="disabled")
-            self.window.update_idletasks()
+            self.status_label.config(text="Stopping processing...")
             
-            try:
-                if self.processing_thread:
-                    self.processing_thread.join(timeout=1.0)
-            except Exception as e:
-                logging.error(f"Error stopping thread: {str(e)}")
-            
-            # Reset stats only when explicitly stopping
-            self._reset_stats()
+            # Wait for thread to terminate
+            if self.processing_thread and self.processing_thread.is_alive():
+                self.processing_thread.join(timeout=5.0)
+                
+            # Update GUI state
             self.start_button.config(state="normal")
-            self.status_label.config(text="Stopped")
-            self.window.update_idletasks()
-
-    def _reset_stats(self):
-        """Reset all statistics counters and update GUI."""
-        if not self.preload_complete:
-            # Don't reset file counts during preload
-            self.processed_files = 0
-            self.start_time = None
-            self.errors = 0
-        else:
-            # Keep preloaded file counts
-            self.processed_files = 0
-            self.start_time = None
-            self.errors = 0
-            self.files_found = self.total_files  # Keep preloaded count
+            self.stop_button.config(state="disabled")
+            self.settings_button.config(state="normal")  # Re-enable settings button
+            self.status_label.config(text="Processing stopped")
+            
+            # Update final stats
+            self._update_stats()
+            
+            logging.info("Processing stopped by user")
         
         # Reset progress bar
         self.progress_bar["value"] = 0
@@ -2411,11 +3231,179 @@ class TextureExtractorGUI:
             logging.error(f"Error showing settings dialog: {e}")
             messagebox.showerror("Error", f"Failed to open settings: {str(e)}")
 
+    def _reset_stats(self):
+        """Reset all statistics counters and update GUI."""
+        # Reset counters
+        self.processed_files = 0
+        self.vmt_files_created = 0
+        self.vmt_files_deleted = 0
+        self.errors = 0
+        
+        # Reset progress bar
+        self.progress_bar["value"] = 0
+        
+        # Update stats display
+        self._update_stats()
+        
+        # Update GUI
+        self.window.update_idletasks()
+    
+    def _should_delete_vmt(self, path: str) -> bool:
+        """Check if a VMT file should be deleted based on its path."""
+        if not DELETE_PATTERNS['enabled']:
+            return False
+            
+        path_lower = path.lower()
+        
+        for category, config in DELETE_PATTERNS['categories'].items():
+            if config['enabled']:
+                if any(pattern in path_lower for pattern in config['patterns']):
+                    return True
+        
+        return False
+
+def get_settings_path():
+    """Get the path to the settings file."""
+    try:
+        # Use log_location if specified, otherwise use default location
+        if LOGGING['log_location']:
+            log_dir = Path(LOGGING['log_location'])
+        else:
+            # Default to AppData/Roaming/TextureExtractor
+            log_dir = Path(os.environ.get('APPDATA', '.')) / 'TextureExtractor' / 'logs'
+        
+        # Create directory if it doesn't exist
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # Return path to settings file
+        return log_dir / 'settings.json'
+    except Exception as e:
+        logging.error(f"Error getting settings path: {e}")
+        # Fallback to current directory
+        return Path('.') / 'texture_extractor_settings.json'
+
+def save_settings_to_file():
+    """Save all settings to a JSON file."""
+    try:
+        settings_path = get_settings_path()
+        
+        # Create a deep copy of the settings to avoid modifying the originals
+        # and to ensure we're not trying to serialize BooleanVar objects
+        settings = {
+            'TEXTURE_QUALITY': dict(TEXTURE_QUALITY),
+            'PERFORMANCE': dict(PERFORMANCE),
+            'BACKUP': dict(BACKUP),
+            'TRANSPARENCY': dict(TRANSPARENCY),
+            'C4_SOUND_REPLACEMENT': dict(C4_SOUND_REPLACEMENT),
+            'SKIP_PATTERNS': dict(SKIP_PATTERNS),
+            'SOUND': dict(SOUND),
+            'WORKSHOP': dict(WORKSHOP),
+            'LOGGING': dict(LOGGING),
+            'GUI': dict(GUI),
+            'WEAPON_COLORS': dict(WEAPON_COLORS),
+            'DELETE_PATTERNS': dict(DELETE_PATTERNS),
+            'PROP_SHADER': dict(PROP_SHADER)  # Make sure PROP_SHADER is included
+        }
+        
+        # Save settings to file
+        with open(settings_path, 'w', encoding='utf-8') as f:
+            json.dump(settings, f, indent=4)
+            
+        logging.info(f"Settings saved to {settings_path}")
+        return True
+    except Exception as e:
+        logging.error(f"Error saving settings: {e}")
+        return False
+
+def load_settings_from_file():
+    """Load settings from a JSON file."""
+    try:
+        settings_path = get_settings_path()
+        
+        if not os.path.exists(settings_path):
+            logging.info(f"Settings file not found at {settings_path}")
+            return False
+        
+        # Load settings from file
+        with open(settings_path, 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+        
+        # Helper function to safely update dictionaries
+        def safe_update(target_dict, source_dict):
+            if isinstance(source_dict, dict):
+                for key, value in source_dict.items():
+                    if key in target_dict:
+                        if isinstance(value, dict) and isinstance(target_dict[key], dict):
+                            safe_update(target_dict[key], value)
+                        else:
+                            target_dict[key] = value
+        
+        # Update global configuration variables safely
+        if 'TEXTURE_QUALITY' in settings:
+            safe_update(TEXTURE_QUALITY, settings['TEXTURE_QUALITY'])
+        if 'PERFORMANCE' in settings:
+            safe_update(PERFORMANCE, settings['PERFORMANCE'])
+        if 'BACKUP' in settings:
+            safe_update(BACKUP, settings['BACKUP'])
+        if 'TRANSPARENCY' in settings:
+            safe_update(TRANSPARENCY, settings['TRANSPARENCY'])
+        if 'C4_SOUND_REPLACEMENT' in settings:
+            safe_update(C4_SOUND_REPLACEMENT, settings['C4_SOUND_REPLACEMENT'])
+        if 'SKIP_PATTERNS' in settings:
+            safe_update(SKIP_PATTERNS, settings['SKIP_PATTERNS'])
+        if 'SOUND' in settings:
+            safe_update(SOUND, settings['SOUND'])
+        if 'WORKSHOP' in settings:
+            safe_update(WORKSHOP, settings['WORKSHOP'])
+        if 'LOGGING' in settings:
+            safe_update(LOGGING, settings['LOGGING'])
+        if 'GUI' in settings:
+            safe_update(GUI, settings['GUI'])
+        if 'WEAPON_COLORS' in settings:
+            safe_update(WEAPON_COLORS, settings['WEAPON_COLORS'])
+        if 'DELETE_PATTERNS' in settings:
+            safe_update(DELETE_PATTERNS, settings['DELETE_PATTERNS'])
+        if 'PROP_SHADER' in settings:
+            safe_update(PROP_SHADER, settings['PROP_SHADER'])
+        
+        logging.info(f"Settings loaded from {settings_path}")
+        return True
+    except Exception as e:
+        logging.error(f"Error loading settings: {e}")
+        return False
+
 def main():
     try:
         # Initialize logging first
         setup_logging()
+        
+        # Load settings from file
+        load_settings_from_file()
         logging.info("Starting application...")
+        
+        # Check and install dependencies
+        if not check_and_install_dependencies():
+            print("\nError: Failed to install required dependencies.")
+            print("Please install the missing packages manually:")
+            print("  pip install vpk")
+            print("  pip install pywin32")
+            sys.exit(1)
+            
+        # Re-import modules after installation
+        try:
+            import vpk
+            import win32security
+            import win32api
+            import win32con
+            from win32com.shell import shell, shellcon
+            import ntsecuritycon
+            global HAS_VPK, HAS_WIN32
+            HAS_VPK = True
+            HAS_WIN32 = True
+            logging.info("Successfully imported required modules after installation")
+        except ImportError as e:
+            logging.error(f"Failed to import modules after installation: {e}")
+            sys.exit(1)
         
         # Check for admin rights at startup
         if not check_admin():
