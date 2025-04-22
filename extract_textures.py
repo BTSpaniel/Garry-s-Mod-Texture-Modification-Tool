@@ -1,13 +1,29 @@
 # =============================================================================
-# Texture Extractor v1.1.2
+# Texture Extractor v1.1.3
 # A tool to extract and modify Garry's Mod textures
 # =============================================================================
 
 """
-=== Texture Extractor v1.1.2 ===
+=== Texture Extractor v1.1.3 ===
 A tool to extract and modify Garry's Mod textures.
 
 === CHANGELOG ===
+
+v1.1.3 (2024-03-21)
+- Added settings system:
+  * Added comprehensive settings dialog
+  * Added texture processing settings
+  * Added backup configuration
+  * Added transparency controls
+  * Added performance tuning
+  * Added logging configuration
+  * Added real-time settings validation
+  * Added settings persistence
+- GUI improvements:
+  * Added settings button
+  * Improved button layout
+  * Enhanced user feedback
+  * Added input validation
 
 v1.1.2 (2024-03-21)
 - Enhanced error handling:
@@ -244,7 +260,7 @@ def elevate_script():
 # -----------------------------------------------------------------------------
 # Version Information
 # -----------------------------------------------------------------------------
-VERSION = "1.1.2"
+VERSION = "1.1.3"
 VERSION_DATE = "2024-03-21"
 
 # -----------------------------------------------------------------------------
@@ -1668,6 +1684,224 @@ def should_backup_file(file_path: Path) -> bool:
         
     return False
 
+class SettingsDialog:
+    def __init__(self, parent):
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title("Settings")
+        self.dialog.geometry("500x600")
+        self.dialog.resizable(False, False)
+        
+        # Make dialog modal
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+        
+        # Center dialog on parent
+        x = parent.winfo_x() + (parent.winfo_width() - 500) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 600) // 2
+        self.dialog.geometry(f"500x600+{x}+{y}")
+        
+        # Create main container with scrollbar
+        main_frame = ttk.Frame(self.dialog)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Create canvas and scrollbar
+        canvas = tk.Canvas(main_frame)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Create frame for settings
+        self.settings_frame = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=self.settings_frame, anchor="nw")
+        
+        # Add settings sections
+        self._add_texture_settings()
+        self._add_backup_settings()
+        self._add_transparency_settings()
+        self._add_performance_settings()
+        self._add_logging_settings()
+        
+        # Add save button at bottom
+        save_button = ttk.Button(self.dialog, text="Save Settings", command=self._save_settings)
+        save_button.pack(pady=20)
+        
+        # Update scroll region
+        self.settings_frame.update_idletasks()
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        
+        # Add mousewheel scrolling
+        self.dialog.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(-1*(e.delta//120), "units"))
+        
+    def _add_section(self, title):
+        """Add a new settings section with a title"""
+        frame = ttk.LabelFrame(self.settings_frame, text=title, padding="10")
+        frame.pack(fill=tk.X, padx=5, pady=5)
+        return frame
+        
+    def _add_texture_settings(self):
+        frame = self._add_section("Texture Processing")
+        
+        # Texture quality settings
+        self.texture_vars = {
+            'compress_textures': tk.BooleanVar(value=TEXTURE_QUALITY['compress_textures']),
+            'max_texture_size': tk.StringVar(value=str(TEXTURE_QUALITY['max_texture_size'])),
+            'mipmap_generation': tk.BooleanVar(value=TEXTURE_QUALITY['mipmap_generation'])
+        }
+        
+        ttk.Checkbutton(frame, text="Compress Textures", variable=self.texture_vars['compress_textures']).pack(anchor="w")
+        
+        size_frame = ttk.Frame(frame)
+        size_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(size_frame, text="Max Texture Size:").pack(side=tk.LEFT)
+        ttk.Entry(size_frame, textvariable=self.texture_vars['max_texture_size'], width=10).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Checkbutton(frame, text="Generate Mipmaps", variable=self.texture_vars['mipmap_generation']).pack(anchor="w")
+        
+    def _add_backup_settings(self):
+        frame = self._add_section("Backup Settings")
+        
+        self.backup_vars = {
+            'enabled': tk.BooleanVar(value=BACKUP['enabled']),
+            'compression': tk.BooleanVar(value=BACKUP['compression']),
+            'max_backups': tk.StringVar(value=str(BACKUP['max_backups'])),
+            'include_cfg': tk.BooleanVar(value=BACKUP['include_cfg']),
+            'include_materials': tk.BooleanVar(value=BACKUP['include_materials'])
+        }
+        
+        ttk.Checkbutton(frame, text="Enable Backups", variable=self.backup_vars['enabled']).pack(anchor="w")
+        ttk.Checkbutton(frame, text="Use Compression", variable=self.backup_vars['compression']).pack(anchor="w")
+        
+        max_frame = ttk.Frame(frame)
+        max_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(max_frame, text="Max Backups:").pack(side=tk.LEFT)
+        ttk.Entry(max_frame, textvariable=self.backup_vars['max_backups'], width=5).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Checkbutton(frame, text="Include Config Files", variable=self.backup_vars['include_cfg']).pack(anchor="w")
+        ttk.Checkbutton(frame, text="Include Material Files", variable=self.backup_vars['include_materials']).pack(anchor="w")
+        
+    def _add_transparency_settings(self):
+        frame = self._add_section("Transparency Settings")
+        
+        self.transparency_vars = {
+            'default_alpha': tk.StringVar(value=str(TRANSPARENCY['default_alpha'])),
+            'weapon_alpha': tk.StringVar(value=str(TRANSPARENCY['weapon_alpha'])),
+            'effect_alpha': tk.StringVar(value=str(TRANSPARENCY['effect_alpha'])),
+            'enable_fade': tk.BooleanVar(value=TRANSPARENCY['enable_fade'])
+        }
+        
+        # Create labeled entries for alpha values
+        for label, key in [
+            ("Default Alpha:", 'default_alpha'),
+            ("Weapon Alpha:", 'weapon_alpha'),
+            ("Effect Alpha:", 'effect_alpha')
+        ]:
+            row = ttk.Frame(frame)
+            row.pack(fill=tk.X, pady=2)
+            ttk.Label(row, text=label).pack(side=tk.LEFT)
+            ttk.Entry(row, textvariable=self.transparency_vars[key], width=10).pack(side=tk.LEFT, padx=5)
+            
+        ttk.Checkbutton(frame, text="Enable Distance Fade", variable=self.transparency_vars['enable_fade']).pack(anchor="w")
+        
+    def _add_performance_settings(self):
+        frame = self._add_section("Performance Settings")
+        
+        self.performance_vars = {
+            'cache_enabled': tk.BooleanVar(value=PERFORMANCE['cache_enabled']),
+            'cache_size': tk.StringVar(value=str(PERFORMANCE['cache_size'])),
+            'preload_textures': tk.BooleanVar(value=PERFORMANCE['preload_textures']),
+            'batch_processing': tk.BooleanVar(value=PERFORMANCE['batch_processing']),
+            'batch_size': tk.StringVar(value=str(PERFORMANCE['batch_size']))
+        }
+        
+        ttk.Checkbutton(frame, text="Enable Cache", variable=self.performance_vars['cache_enabled']).pack(anchor="w")
+        
+        cache_frame = ttk.Frame(frame)
+        cache_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(cache_frame, text="Cache Size (MB):").pack(side=tk.LEFT)
+        ttk.Entry(cache_frame, textvariable=self.performance_vars['cache_size'], width=10).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Checkbutton(frame, text="Preload Textures", variable=self.performance_vars['preload_textures']).pack(anchor="w")
+        ttk.Checkbutton(frame, text="Batch Processing", variable=self.performance_vars['batch_processing']).pack(anchor="w")
+        
+        batch_frame = ttk.Frame(frame)
+        batch_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(batch_frame, text="Batch Size:").pack(side=tk.LEFT)
+        ttk.Entry(batch_frame, textvariable=self.performance_vars['batch_size'], width=10).pack(side=tk.LEFT, padx=5)
+        
+    def _add_logging_settings(self):
+        frame = self._add_section("Logging Settings")
+        
+        self.logging_vars = {
+            'log_to_file': tk.BooleanVar(value=LOGGING['log_to_file']),
+            'max_log_size': tk.StringVar(value=str(LOGGING['max_log_size'])),
+            'max_log_files': tk.StringVar(value=str(LOGGING['max_log_files']))
+        }
+        
+        ttk.Checkbutton(frame, text="Log to File", variable=self.logging_vars['log_to_file']).pack(anchor="w")
+        
+        size_frame = ttk.Frame(frame)
+        size_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(size_frame, text="Max Log Size (MB):").pack(side=tk.LEFT)
+        ttk.Entry(size_frame, textvariable=self.logging_vars['max_log_size'], width=10).pack(side=tk.LEFT, padx=5)
+        
+        files_frame = ttk.Frame(frame)
+        files_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(files_frame, text="Max Log Files:").pack(side=tk.LEFT)
+        ttk.Entry(files_frame, textvariable=self.logging_vars['max_log_files'], width=10).pack(side=tk.LEFT, padx=5)
+        
+    def _save_settings(self):
+        """Save all settings to global configuration"""
+        try:
+            # Update texture settings
+            TEXTURE_QUALITY.update({
+                'compress_textures': self.texture_vars['compress_textures'].get(),
+                'max_texture_size': int(self.texture_vars['max_texture_size'].get()),
+                'mipmap_generation': self.texture_vars['mipmap_generation'].get()
+            })
+            
+            # Update backup settings
+            BACKUP.update({
+                'enabled': self.backup_vars['enabled'].get(),
+                'compression': self.backup_vars['compression'].get(),
+                'max_backups': int(self.backup_vars['max_backups'].get()),
+                'include_cfg': self.backup_vars['include_cfg'].get(),
+                'include_materials': self.backup_vars['include_materials'].get()
+            })
+            
+            # Update transparency settings
+            TRANSPARENCY.update({
+                'default_alpha': float(self.transparency_vars['default_alpha'].get()),
+                'weapon_alpha': float(self.transparency_vars['weapon_alpha'].get()),
+                'effect_alpha': float(self.transparency_vars['effect_alpha'].get()),
+                'enable_fade': self.transparency_vars['enable_fade'].get()
+            })
+            
+            # Update performance settings
+            PERFORMANCE.update({
+                'cache_enabled': self.performance_vars['cache_enabled'].get(),
+                'cache_size': int(self.performance_vars['cache_size'].get()),
+                'preload_textures': self.performance_vars['preload_textures'].get(),
+                'batch_processing': self.performance_vars['batch_processing'].get(),
+                'batch_size': int(self.performance_vars['batch_size'].get())
+            })
+            
+            # Update logging settings
+            LOGGING.update({
+                'log_to_file': self.logging_vars['log_to_file'].get(),
+                'max_log_size': int(self.logging_vars['max_log_size'].get()),
+                'max_log_files': int(self.logging_vars['max_log_files'].get())
+            })
+            
+            messagebox.showinfo("Success", "Settings saved successfully!")
+            self.dialog.destroy()
+            
+        except ValueError as e:
+            messagebox.showerror("Error", "Please enter valid numeric values for all number fields.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save settings: {str(e)}")
+
 class TextureExtractorGUI:
     def __init__(self):
         logging.info("Initializing GUI...")
@@ -1785,6 +2019,7 @@ class TextureExtractorGUI:
             button_frame.grid(row=1, column=0, columnspan=2, pady=(0, 10), sticky="ew")
             button_frame.grid_columnconfigure(0, weight=1)
             button_frame.grid_columnconfigure(1, weight=1)
+            button_frame.grid_columnconfigure(2, weight=1)  # Add column for settings button
 
             # Buttons with consistent width
             button_width = 15
@@ -1804,6 +2039,15 @@ class TextureExtractorGUI:
                 state=tk.DISABLED
             )
             self.stop_button.grid(row=0, column=1, padx=5)
+
+            # Add settings button
+            self.settings_button = ttk.Button(
+                button_frame,
+                text="Settings",
+                command=self.show_settings,
+                width=button_width
+            )
+            self.settings_button.grid(row=0, column=2, padx=5)
 
             # Status label with proper wrapping
             self.status_label = ttk.Label(
@@ -2158,6 +2402,14 @@ class TextureExtractorGUI:
             logging.error(f"Error during preload: {e}")
             self.status_label.config(text=f"Error during preload: {str(e)}")
             self.start_button.config(state="normal")
+
+    def show_settings(self):
+        """Show the settings dialog"""
+        try:
+            SettingsDialog(self.window)
+        except Exception as e:
+            logging.error(f"Error showing settings dialog: {e}")
+            messagebox.showerror("Error", f"Failed to open settings: {str(e)}")
 
 def main():
     try:
