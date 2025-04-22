@@ -1,0 +1,65 @@
+{
+    "texture_settings": {
+        "enabled": true,
+        "categories": {
+            "trees": {
+                "enabled": false,
+                "patterns": []
+            },
+            "effects": {
+                "enabled": true,
+                "patterns": []
+            },
+            "ui": {
+                "enabled": true,
+                "patterns": []
+            },
+            "weapons": {
+                "enabled": true,
+                "patterns": []
+            },
+            "props": {
+                "enabled": false,
+                "patterns": []
+            }
+        }
+    },
+    "backup_settings": {
+        "enabled": true,
+        "create_backups": true
+    },
+    "transparency_settings": {
+        "enabled": true,
+        "handle_transparency": true
+    },
+    "weapon_color_settings": {
+        "enabled": true,
+        "patterns": []
+    },
+    "deletion_settings": {
+        "enabled": true,
+        "categories": {
+            "trees": false,
+            "effects": true,
+            "ui": true,
+            "weapons": true,
+            "props": false
+        }
+    },
+    "performance_settings": {
+        "thread_count": 4,
+        "batch_size": 100
+    },
+    "logging_settings": {
+        "level": "INFO",
+        "file_logging": true
+    },
+    "c4_sound_settings": {
+        "enabled": false,
+        "sound_file": ""
+    },
+    "prop_shader_settings": {
+        "enabled": true,
+        "patterns": []
+    }
+} 
