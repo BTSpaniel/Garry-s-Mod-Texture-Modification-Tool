@@ -972,6 +972,10 @@ class TextureExtractorGUI:
                             self.window.update_idletasks()
                             last_vmt_update = current_time
                             
+                        # Remove 'materials/' prefix if it exists to prevent duplicate folders
+                        if vtf_path.lower().startswith('materials/'):
+                            vtf_path = vtf_path[10:]  # Remove 'materials/' prefix
+                        
                         vmt_path = vtf_path.replace('.vtf', '.vmt')
                         full_path = os.path.join(gmod_materials, vmt_path)
                         
