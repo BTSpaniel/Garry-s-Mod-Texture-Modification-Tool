@@ -1,4 +1,4 @@
-# Texture Extractor v1.3.2
+# Texture Extractor v1.3.3
 
 A tool to extract and modify Garry's Mod textures.
 
@@ -73,6 +73,11 @@ The application includes an automatic update system that checks for new versions
 - Shows detailed progress during updates
 
 ## Version History
+
+### v1.3.3 (2025-04-24)
+- Fixed material folder structure handling to ensure proper merging
+- Prevented creation of nested materials folders
+- Improved path handling for texture extraction
 
 ### v1.3.2 (2025-04-24)
 - Hotfix for stability issues in the SWEP detector module

@@ -972,24 +972,19 @@ class TextureExtractorGUI:
                             self.window.update_idletasks()
                             last_vmt_update = current_time
                             
-                        # Remove 'materials/' or 'materials\' prefix if it exists to prevent duplicate folders
-                        if vtf_path.lower().startswith('materials/'):
-                            vtf_path = vtf_path[10:]  # Remove 'materials/' prefix
-                        elif vtf_path.lower().startswith('materials\\'):
-                            vtf_path = vtf_path[10:]  # Remove 'materials\' prefix
-                        
+                        # Convert vtf_path to vmt_path and ensure we're not creating nested materials folders
                         vmt_path = vtf_path.replace('.vtf', '.vmt')
+                        
+                        # Remove 'materials/' prefix if it exists to avoid nested folders
+                        if vmt_path.lower().startswith('materials/'):
+                            vmt_path = vmt_path[len('materials/'):]
+                            
                         full_path = os.path.join(gmod_materials, vmt_path)
                         
                         # Create directory structure
-                        try:
-                            parent_dir = os.path.dirname(full_path)
-                            if not os.path.exists(parent_dir):
-                                os.makedirs(parent_dir, exist_ok=True)
-                        except Exception as e:
-                            logging.error(f"Error creating directory {parent_dir}: {e}")
-                            # Continue with next texture path
-                            continue
+                        parent_dir = os.path.dirname(full_path)
+                        if not os.path.exists(parent_dir):
+                            os.makedirs(parent_dir, exist_ok=True)
                         
                         # Generate VMT content using our simplified VMTGenerator
                         vmt_content, vmt_type = vmt_generator.create_vmt_content(vtf_path)

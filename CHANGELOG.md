@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.3] - 2025-04-24
+
+### Fixed
+- Fixed material folder structure handling to ensure proper merging
+- Prevented creation of nested materials folders
+- Improved path handling for texture extraction
+- Enhanced VMT path processing to strip 'materials/' prefix
+
 ## [1.3.2] - 2025-04-24
 
 ### Fixed
