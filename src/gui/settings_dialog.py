@@ -86,6 +86,7 @@ class SettingsDialog:
         
         # Get module settings from config
         module_config = self.config.get("MODULES", {})
+        logging.info(f"Loading module settings in dialog: {module_config}")
         
         # Create variables for module settings
         self.module_vars = {
@@ -93,28 +94,51 @@ class SettingsDialog:
             'texture_extractor': tk.BooleanVar(value=module_config.get('texture_extractor', True))
         }
         
-        # Create module settings controls
-        ttk.Label(frame, text="Enable or disable specific modules:").pack(anchor="w", pady=(0, 5))
+        # Log the initial values
+        logging.info(f"Initial SWEP detector setting: {self.module_vars['swep_detector'].get()}")
+        logging.info(f"Initial Texture extractor setting: {self.module_vars['texture_extractor'].get()}")
         
-        # SWEP Detector module checkbox
-        swep_frame = ttk.Frame(frame)
-        swep_frame.pack(fill=tk.X, pady=2)
+        # Create module settings controls with a highlighted background
+        module_title_frame = ttk.Frame(frame)
+        module_title_frame.pack(fill=tk.X, pady=(0, 5))
         
-        ttk.Checkbutton(swep_frame, text="SWEP Detector", variable=self.module_vars['swep_detector']).pack(side=tk.LEFT)
+        title_label = ttk.Label(module_title_frame, text="Enable or disable specific modules:", font=("Segoe UI", 9, "bold"))
+        title_label.pack(anchor="w")
+        
+        # SWEP Detector module checkbox with custom styling
+        swep_frame = ttk.Frame(frame, style="ModuleOption.TFrame")
+        swep_frame.pack(fill=tk.X, pady=4, padx=5)
+        
+        swep_cb = ttk.Checkbutton(swep_frame, text="SWEP Detector", variable=self.module_vars['swep_detector'])
+        swep_cb.pack(side=tk.LEFT)
         ttk.Label(swep_frame, text="(Scans for weapon scripts and extracts textures)", font=("Segoe UI", 8)).pack(side=tk.LEFT, padx=(10, 0))
         
-        # Texture Extractor module checkbox
-        texture_frame = ttk.Frame(frame)
-        texture_frame.pack(fill=tk.X, pady=2)
+        # Add trace to log changes
+        def on_swep_change(*args):
+            logging.info(f"SWEP detector setting changed to: {self.module_vars['swep_detector'].get()}")
+        self.module_vars['swep_detector'].trace_add("write", on_swep_change)
         
-        ttk.Checkbutton(texture_frame, text="Texture Extractor", variable=self.module_vars['texture_extractor']).pack(side=tk.LEFT)
+        # Texture Extractor module checkbox
+        texture_frame = ttk.Frame(frame, style="ModuleOption.TFrame")
+        texture_frame.pack(fill=tk.X, pady=4, padx=5)
+        
+        texture_cb = ttk.Checkbutton(texture_frame, text="Texture Extractor", variable=self.module_vars['texture_extractor'])
+        texture_cb.pack(side=tk.LEFT)
         ttk.Label(texture_frame, text="(Extracts textures from VPK, BSP, and GMA files)", font=("Segoe UI", 8)).pack(side=tk.LEFT, padx=(10, 0))
         
-        # Add a note about module dependencies
+        # Add trace to log changes
+        def on_texture_change(*args):
+            logging.info(f"Texture extractor setting changed to: {self.module_vars['texture_extractor'].get()}")
+        self.module_vars['texture_extractor'].trace_add("write", on_texture_change)
+        
+        # Add a note about module dependencies with better visibility
         note_frame = ttk.Frame(frame)
         note_frame.pack(fill=tk.X, pady=(10, 0))
-        ttk.Label(note_frame, text="Note: Disabling modules may improve performance but reduce functionality.", 
-                 font=("Segoe UI", 8), foreground="#666666").pack(anchor="w")
+        note_label = ttk.Label(note_frame, 
+                              text="Note: Changes to module settings take effect when you click Start.", 
+                              font=("Segoe UI", 8, "italic"), 
+                              foreground="#CC0000")
+        note_label.pack(anchor="w")
         
     def _add_update_settings(self):
         """Add update settings section with Check for Updates button."""
@@ -866,11 +890,24 @@ class SettingsDialog:
             
             # Update module settings
             module_config = self.config.get("MODULES", {})
+            
+            # Get current values from the UI
+            swep_detector_enabled = self.module_vars['swep_detector'].get()
+            texture_extractor_enabled = self.module_vars['texture_extractor'].get()
+            
+            # Log the values being saved
+            logging.info(f"Saving SWEP detector setting: {swep_detector_enabled}")
+            logging.info(f"Saving Texture extractor setting: {texture_extractor_enabled}")
+            
+            # Update the config
             module_config.update({
-                'swep_detector': self.module_vars['swep_detector'].get(),
-                'texture_extractor': self.module_vars['texture_extractor'].get()
+                'swep_detector': swep_detector_enabled,
+                'texture_extractor': texture_extractor_enabled
             })
+            
+            # Save to config
             self.config["MODULES"] = module_config
+            logging.info(f"Updated module config: {self.config['MODULES']}")
             
             # Update update settings
             update_config = self.config.get("UPDATE", {})

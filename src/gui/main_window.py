@@ -32,6 +32,10 @@ class TextureExtractorGUI:
         self.config = load_config()
         self.gui_config = self.config.get("GUI", {})
         
+        # Log the module settings from the config
+        module_config = self.config.get("MODULES", {})
+        logging.info(f"Loaded module settings from config: {module_config}")
+        
         # Initialize the main window
         self.window = tk.Tk()
         
@@ -777,6 +781,16 @@ class TextureExtractorGUI:
             self.status_label.config(text="Error: Preload not complete!")
             return
             
+        # Reload config to ensure we have the latest settings
+        from src.config.config_manager import load_config
+        self.config = load_config()
+        
+        # Log module settings at start time
+        module_config = self.config.get("MODULES", {})
+        logging.info(f"[START] Module settings: {module_config}")
+        logging.info(f"[START] SWEP detector enabled: {module_config.get('swep_detector', True)}")
+        logging.info(f"[START] Texture extractor enabled: {module_config.get('texture_extractor', True)}")
+            
         self.is_processing = True
         self.start_button.config(state="disabled")
         self.stop_button.config(state="normal")
@@ -789,6 +803,21 @@ class TextureExtractorGUI:
         self.c4_sounds_replaced = 0
         self.errors = 0
         self.progress_bar["value"] = 0
+        
+        # Display active modules in the status label
+        module_config = self.config.get("MODULES", {})
+        swep_detector_enabled = module_config.get("swep_detector", True)
+        texture_extractor_enabled = module_config.get("texture_extractor", True)
+        
+        active_modules = []
+        if swep_detector_enabled:
+            active_modules.append("SWEP Detector")
+        if texture_extractor_enabled:
+            active_modules.append("Texture Extractor")
+            
+        modules_text = ", ".join(active_modules)
+        self.status_label.config(text=f"Starting processing with active modules: {modules_text}")
+        self.window.update_idletasks()
         
         # Start processing in a separate thread
         self.processing_thread = threading.Thread(target=self._process_task)
@@ -844,7 +873,13 @@ class TextureExtractorGUI:
             module_config = self.config.get("MODULES", {})
             swep_detector_enabled = module_config.get("swep_detector", True)
             
+            # Add debug logging to see the actual value
+            logging.info(f"SWEP Detector module enabled: {swep_detector_enabled}")
+            logging.info(f"Module config: {module_config}")
+            
+            # Only run SWEP detection if the module is explicitly enabled
             if swep_detector_enabled and self.config.get("SWEP_DETECTION", {}).get("enabled", True):
+                logging.info("Running SWEP detector...")
                 self.status_label.config(text="Scanning for SWEPs...")
                 self.window.update_idletasks()
                 
@@ -912,6 +947,9 @@ class TextureExtractorGUI:
             
             # Check if texture extractor module is enabled
             texture_extractor_enabled = module_config.get("texture_extractor", True)
+            
+            # Add debug logging for texture extractor module
+            logging.info(f"Texture Extractor module enabled: {texture_extractor_enabled}")
             
             # Process each VPK chunk if texture extractor is enabled
             if texture_extractor_enabled:
