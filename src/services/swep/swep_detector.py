@@ -1462,6 +1462,28 @@ class SWEPDetector:
             logging.debug(f"Regular Lua processing failed for {lua_file.name}: {e}")
             return set(), set(), {}, False
 
+    def _extract_texture_references_worker(self, content: str) -> Set[str]:
+        """Extract texture references from content."""
+        texture_refs = set()
+        
+        # Extract texture paths from Material() calls
+        material_matches = re.finditer(r'Material\(\s*["\']([^"\']*)["\'](\s*,\s*[^)]*)?\)', content, re.DOTALL)
+        for mat_match in material_matches:
+            texture_path = mat_match.group(1)
+            if texture_path:
+                texture_refs.add(texture_path)
+                self.stats['textures_found'] += 1
+        
+        # Extract VMT/VTF references
+        vmt_matches = re.finditer(r'["\'](materials/[^"\']*.(?:vmt|vtf))["\'](\s*,\s*[^)]*)?', content, re.DOTALL)
+        for vmt_match in vmt_matches:
+            texture_path = vmt_match.group(1)
+            if texture_path:
+                texture_refs.add(texture_path)
+                self.stats['textures_found'] += 1
+        
+        return texture_refs
+
     def _parse_swep_table(self, table_content: str) -> Dict[str, str]:
         """Extract key information from a SWEP table definition."""
         swep_info = {}

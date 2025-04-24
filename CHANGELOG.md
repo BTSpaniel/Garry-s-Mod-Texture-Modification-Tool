@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 2025-04-24
+
+### Fixed
+- Hotfix for stability issues in the SWEP detector module
+- Improved error handling for edge cases
+- Fixed potential memory leaks in texture processing
+- Ensured proper initialization of model and texture references
+
 ## [1.3.1] - 2025-04-24
 
 ### Fixed
