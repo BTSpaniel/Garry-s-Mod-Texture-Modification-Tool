@@ -1460,39 +1460,35 @@ class SWEPDetector:
                 success = True
         except Exception as e:
             logging.debug(f"Regular Lua processing failed for {lua_file.name}: {e}")
-            
-{{ ... }}
-                        self.stats['sweps_detected'] += 1
-                        logging.info(f"Detected binary SWEP: {swep_class}")
-        except Exception as e:
-            logging.error(f"Error processing binary content from {file_path}: {e}")
-    
+            return set(), set(), {}, False
+
     def _parse_swep_table(self, table_content: str) -> Dict[str, str]:
         """Extract key information from a SWEP table definition."""
-        result = {}
-                    if model_key in swep_info:
-                        model_path = swep_info[model_key]
-                        if model_path and isinstance(model_path, str):
-                            self.model_references.add(model_path)
-                            self.stats['models_found'] += 1
-                
-                # Extract texture paths from Material() calls
-                material_matches = re.finditer(r'Material\(\s*["\']([^"\']*)["\'](\s*,\s*[^)]*)?\)', content, re.DOTALL)
-                for mat_match in material_matches:
-                    texture_path = mat_match.group(1)
-                    if texture_path:
-                        self.texture_references.add(texture_path)
-                        self.stats['textures_found'] += 1
-                        
-                # Extract VMT/VTF references
-                vmt_matches = re.finditer(r'["\'](materials/[^"\']*.(?:vmt|vtf))["\'](\s*,\s*[^)]*)?', content, re.DOTALL)
-                for vmt_match in vmt_matches:
+        swep_info = {}
         
-                    texture_path = vmt_match.group(1)
-                    if texture_path:
-                        self.texture_references.add(texture_path)
-                        self.stats['textures_found'] += 1
+        # Extract key properties using regex
+        # Look for PrintName = "...", Base = "...", etc.
+        property_pattern = r'([A-Za-z0-9_]+)\s*=\s*["\'](.+?)["\']'
+        for match in re.finditer(property_pattern, table_content, re.DOTALL):
+            key = match.group(1).strip()
+            value = match.group(2).strip()
+            
+            if key and value:
+                swep_info[key] = value
                 
+                # Track model references
+                if key.lower() in ['model', 'worldmodel', 'viewmodel']:
+                    if value and isinstance(value, str):
+                        self.model_references.add(value)
+                        self.stats['models_found'] += 1
+        
+        # Also look for numeric properties like Slot = 1
+        numeric_pattern = r'([A-Za-z0-9_]+)\s*=\s*([0-9]+)'
+        for match in re.finditer(numeric_pattern, table_content, re.DOTALL):
+            key = match.group(1).strip()
+            value = match.group(2).strip()
+            
+            if key and value:
                 swep_info[key] = value
         
         return swep_info

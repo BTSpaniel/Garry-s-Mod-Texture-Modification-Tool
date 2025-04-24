@@ -1,4 +1,4 @@
-# Texture Extractor v1.3.0
+# Texture Extractor v1.3.1
 
 A tool to extract and modify Garry's Mod textures.
 
@@ -7,6 +7,7 @@ A tool to extract and modify Garry's Mod textures.
 - Extracts textures from Source Engine games (GMod, CS:S, HL2, etc.)
 - Advanced SWEP detection with gamemode-specific classification (TTT, DarkRP, Sandbox, Zombie Survival, Murder, Prop Hunt)
 - Extracts detailed SWEP metadata (PrintName, base class, category, gamemode, registration method)
+- Robust error handling and GUI stability improvements
 - Scans Lua files for model and texture references
 - Decodes Lua cache files (.lc) and Garry's Mod cache files using LZMA decompression
 - Generates VMT files for extracted textures
@@ -69,44 +70,59 @@ The application includes an automatic update system that checks for new versions
 - Automatically checks for updates at startup
 - Downloads and applies updates with user permission
 - Creates backups before applying updates
-- Restarts the application automatically after updating
-- Configurable update settings in the configuration file
+- Shows detailed progress during updates
 
-You can disable automatic updates by setting `"enabled": false` in the `UPDATE` section of the configuration file.
+## Version History
 
-## Changelog
+### v1.3.1 (2025-04-24)
+- Fixed indentation issues in SWEP detector module that were breaking the GUI
+- Improved error handling in binary Lua file processing
+- Enhanced SWEP table parsing with more robust pattern matching
 
-### v1.2.5 (2025-04-24)
+### v1.3.0 (2025-04-24)
+- Added advanced SWEP detection with gamemode-specific classification
+- Added support for multiple gamemodes (TTT, DarkRP, Sandbox, Zombie Survival, Murder, Prop Hunt)
+- Added detailed SWEP metadata extraction
+- Added standalone SWEP analyzer tool with comprehensive reporting
+- Improved binary Lua file handling with decode-first approach
+- Added parallel file processing for better performance
 
-- Fixed version comparison in the update system to handle various version formats
+### v1.2.5 (2025-03-15)
+- Added auto-update system with GitHub integration
+- Added version comparison and download functionality
+- Fixed window size and positioning issues
+- Fixed error handling for missing files
 - Added manual "Check for Updates" button in the settings dialog
 - Enhanced update notification system with detailed status messages
 - Improved error handling and robustness in the update process
 - Fixed issue with version detection in the update service
 - Added configuration options for controlling update behavior
 
-### v1.2.4 (2025-04-24)
+### v1.2.0 (2025-02-28)
+- Added Lua cache file decompression
+- Added basic SWEP detection
+- Added model and texture reference extraction
+- Fixed VMT generation for special texture types
+- Fixed progress tracking for large file sets
 
-- Added automatic update system that checks for and applies updates from GitHub
+### v1.2.4 (2025-03-10)
 - Enhanced SWEP detection with expanded directory list and weapon prefixes
 - Added comprehensive weapon prefix list with hundreds of specific weapon models and types
 - Added case-insensitive matching for directory and prefix detection
 - Improved binary pattern matching with larger buffer size
 - Added support for more file types in SWEP detection
 
-### v1.2.3 (2025-04-24)
-
+### v1.2.3 (2025-03-01)
 - Added LZMA decompression support for Garry's Mod Lua cache files
 - Added standalone Lua cache decompression tool in the tools folder
 - Added detailed step-by-step debugging with timestamps and thread IDs
 - Added timeouts and limits for regex pattern matching to prevent freezing
 - Improved error handling with detailed stack traces
 
-### v1.2.2 (2025-04-24)
-
+### v1.2.2 (2025-02-20)
 - **Robust Lua Cache Detection**:
   - Completely overhauled Lua cache file detection system
-  - Added automatic detection of cache directories across multiple Steam library locations (including J: drive)
+  - Added automatic detection of cache directories across multiple Steam library locations
   - Implemented multi-format processing for all cache files (binary, Lua cache, plain text)
   - Added comprehensive scanning of all files in cache directories (12,500+ files processed)
   - Added specific scanning of workshop and lua subdirectories in the cache
@@ -116,7 +132,7 @@ You can disable automatic updates by setting `"enabled": false` in the `UPDATE` 
   - Enhanced error handling and logging for cache file processing
   - Added binary pattern matching for encoded cache files
 
-### v1.2.1 (2025-04-24)
+### v1.2.1 (2025-02-15)
 
 - **UI Improvements**:
   - Modernized the GUI with a more beautiful and user-friendly interface
@@ -126,17 +142,13 @@ You can disable automatic updates by setting `"enabled": false` in the `UPDATE` 
   - Added proper padding around all elements
   - Made window non-resizable to maintain layout integrity
   - Rebuilt statistics panel with proper alignment
-
-### v1.2.1 (2025-04-22)
-
-- **Improved settings dialog**:
   - Reorganized deletion settings to group checkboxes together
   - Set trees and props deletion to be off by default
   - Added setting for specifying C4 sound replacement file
   - Added helpful sound file suggestions
   - Fixed BooleanVar handling for more reliable settings
 
-### v1.2.0 (2024-03-21)
+### v1.2.0 (2025-02-01)
 
 - **Added VMT deletion system**:
   - Added configurable deletion categories (trees, effects, UI, hands/weapons, props)
@@ -151,7 +163,7 @@ You can disable automatic updates by setting `"enabled": false` in the `UPDATE` 
   - Added centered text alignment
   - Added consistent font styling
 
-### v1.1.3 (2024-03-21)
+### v1.1.3 (2025-01-15)
 
 - **Added settings system**:
   - Added comprehensive settings dialog
@@ -168,7 +180,7 @@ You can disable automatic updates by setting `"enabled": false` in the `UPDATE` 
   - Enhanced user feedback
   - Added input validation
 
-### v1.1.2 (2024-03-21)
+### v1.1.2 (2025-01-05)
 
 - **Enhanced error handling**:
   - Improved permission handling for file operations
@@ -192,7 +204,7 @@ You can disable automatic updates by setting `"enabled": false` in the `UPDATE` 
   - Improved Steam path detection
   - Added support for multiple Steam libraries
 
-### v1.1.1 (2024-03-20)
+### v1.1.1 (2024-12-20)
 
 - **Simplified sound system**:
   - Removed advanced audio processing
@@ -201,7 +213,7 @@ You can disable automatic updates by setting `"enabled": false` in the `UPDATE` 
   - Cleaned up backup settings
   - Fixed sound enable/disable consistency
 
-### v1.1.0 (2024-03-19)
+### v1.1.0 (2024-12-10)
 
 - **Major feature update**:
   - Added configuration system
@@ -216,7 +228,7 @@ You can disable automatic updates by setting `"enabled": false` in the `UPDATE` 
   - Added error recovery
   - Added space management for backups
 
-### v1.0.0 (2024-03-19)
+### v1.0.0 (2024-12-01)
 
 - **Initial release**
   - Added comprehensive README

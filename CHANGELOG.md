@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2025-04-24
+
+### Fixed
+- Fixed indentation issues in SWEP detector module that were breaking the GUI
+- Improved error handling in binary Lua file processing
+- Enhanced SWEP table parsing with more robust pattern matching
+
 ## [1.3.0] - 2025-04-24
 
 ### Added
