@@ -431,21 +431,28 @@ class TextureExtractorGUI:
             self.stats_notebook = ttk.Notebook(self.stats_frame)
             self.stats_notebook.grid(row=0, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
             
+
+
             # Create frames for each tab with proper padding
             self.general_stats_frame = ttk.Frame(self.stats_notebook, padding=10)
             self.swep_stats_frame = ttk.Frame(self.stats_notebook, padding=10)
+            self.modules_stats_frame = ttk.Frame(self.stats_notebook, padding=10)
             
             # Add tabs to notebook
             self.stats_notebook.add(self.general_stats_frame, text="General")
             self.stats_notebook.add(self.swep_stats_frame, text="SWEP Detection")
+            self.stats_notebook.add(self.modules_stats_frame, text="Modules")
             
             # Set a fixed width for the notebook to prevent squeezing
             self.stats_notebook.config(width=780, height=180)
             
             # Configure the frames
-            for frame in [self.general_stats_frame, self.swep_stats_frame]:
+            for frame in [self.general_stats_frame, self.swep_stats_frame, self.modules_stats_frame]:
                 frame.grid_columnconfigure(0, weight=1)
                 frame.grid_columnconfigure(1, weight=1)
+                
+            # Set up module stats UI
+            self._setup_module_stats()
 
             # Stats labels with consistent formatting
             self.stats_labels = {}
@@ -590,6 +597,83 @@ class TextureExtractorGUI:
             logging.error(f"Error setting up GUI components: {e}")
             raise
     
+    def _setup_module_stats(self):
+        """Set up the module statistics UI in the Modules tab"""
+        try:
+            # Module Status Section
+            module_status_container = ttk.Frame(self.modules_stats_frame)
+            module_status_container.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 10))
+            
+            # Add a header for the module status section
+            module_header = ttk.Label(module_status_container, text="Module Status", font=("Segoe UI", 10, "bold"))
+            module_header.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 5))
+            
+            # Create indicators for each module
+            # SWEP Detector
+            swep_module_frame = ttk.Frame(module_status_container)
+            swep_module_frame.grid(row=1, column=0, sticky="w", padx=10, pady=2)
+            
+            ttk.Label(swep_module_frame, text="SWEP Detector:", style='StatLabel.TLabel').pack(side="left")
+            self.swep_module_status = ttk.Label(swep_module_frame, text="Inactive", foreground="#888888")
+            self.swep_module_status.pack(side="left", padx=(5, 0))
+            
+            # Texture Extractor
+            texture_module_frame = ttk.Frame(module_status_container)
+            texture_module_frame.grid(row=1, column=1, sticky="w", padx=10, pady=2)
+            
+            ttk.Label(texture_module_frame, text="Texture Extractor:", style='StatLabel.TLabel').pack(side="left")
+            self.texture_module_status = ttk.Label(texture_module_frame, text="Inactive", foreground="#888888")
+            self.texture_module_status.pack(side="left", padx=(5, 0))
+            
+            # Module Performance Stats
+            module_perf_container = ttk.Frame(self.modules_stats_frame)
+            module_perf_container.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(5, 0))
+            
+            # Add a header for the performance section
+            perf_header = ttk.Label(module_perf_container, text="Module Performance", font=("Segoe UI", 10, "bold"))
+            perf_header.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 5))
+            
+            # SWEP Detector Performance
+            swep_perf_frame = ttk.Frame(module_perf_container)
+            swep_perf_frame.grid(row=1, column=0, sticky="w", padx=10, pady=2)
+            
+            ttk.Label(swep_perf_frame, text="SWEP Processing Time:", style='StatLabel.TLabel').pack(side="left")
+            self.swep_time_label = ttk.Label(swep_perf_frame, text="0:00:00", style='StatValue.TLabel')
+            self.swep_time_label.pack(side="left", padx=(5, 0))
+            
+            # Texture Extractor Performance
+            texture_perf_frame = ttk.Frame(module_perf_container)
+            texture_perf_frame.grid(row=1, column=1, sticky="w", padx=10, pady=2)
+            
+            ttk.Label(texture_perf_frame, text="Texture Processing Time:", style='StatLabel.TLabel').pack(side="left")
+            self.texture_time_label = ttk.Label(texture_perf_frame, text="0:00:00", style='StatValue.TLabel')
+            self.texture_time_label.pack(side="left", padx=(5, 0))
+            
+            # Memory Usage
+            memory_frame = ttk.Frame(module_perf_container)
+            memory_frame.grid(row=2, column=0, sticky="w", padx=10, pady=2)
+            
+            ttk.Label(memory_frame, text="Memory Usage:", style='StatLabel.TLabel').pack(side="left")
+            self.memory_usage_label = ttk.Label(memory_frame, text="0 MB", style='StatValue.TLabel')
+            self.memory_usage_label.pack(side="left", padx=(5, 0))
+            
+            # CPU Usage
+            cpu_frame = ttk.Frame(module_perf_container)
+            cpu_frame.grid(row=2, column=1, sticky="w", padx=10, pady=2)
+            
+            ttk.Label(cpu_frame, text="CPU Usage:", style='StatLabel.TLabel').pack(side="left")
+            self.cpu_usage_label = ttk.Label(cpu_frame, text="0%", style='StatValue.TLabel')
+            self.cpu_usage_label.pack(side="left", padx=(5, 0))
+            
+            # Initialize module-specific timing variables
+            self.swep_start_time = None
+            self.swep_end_time = None
+            self.texture_start_time = None
+            self.texture_end_time = None
+            
+        except Exception as e:
+            logging.error(f"Error setting up module stats UI: {e}")
+    
     def _update_stats(self):
         """Update statistics display"""
         try:
@@ -639,6 +723,60 @@ class TextureExtractorGUI:
                 self.swep_phase_label.config(text=f"{self.current_swep_phase}")
             
             # No need to update summary labels as they're now part of the stats_labels
+            
+            # Update module status indicators
+            module_config = self.config.get("MODULES", {})
+            swep_detector_enabled = module_config.get("swep_detector", True)
+            texture_extractor_enabled = module_config.get("texture_extractor", True)
+            
+            # Update SWEP detector status
+            if swep_detector_enabled:
+                self.swep_module_status.config(text="Active", foreground="#009900")
+            else:
+                self.swep_module_status.config(text="Disabled", foreground="#CC0000")
+                
+            # Update Texture extractor status
+            if texture_extractor_enabled:
+                self.texture_module_status.config(text="Active", foreground="#009900")
+            else:
+                self.texture_module_status.config(text="Disabled", foreground="#CC0000")
+                
+            # Update module timing information
+            if self.swep_start_time:
+                if self.swep_end_time:
+                    swep_elapsed = self.swep_end_time - self.swep_start_time
+                else:
+                    swep_elapsed = time.time() - self.swep_start_time
+                    
+                hours = int(swep_elapsed // 3600)
+                minutes = int((swep_elapsed % 3600) // 60)
+                seconds = int(swep_elapsed % 60)
+                self.swep_time_label.config(text=f"{hours:02d}:{minutes:02d}:{seconds:02d}")
+            
+            if self.texture_start_time:
+                if self.texture_end_time:
+                    texture_elapsed = self.texture_end_time - self.texture_start_time
+                else:
+                    texture_elapsed = time.time() - self.texture_start_time
+                    
+                hours = int(texture_elapsed // 3600)
+                minutes = int((texture_elapsed % 3600) // 60)
+                seconds = int(texture_elapsed % 60)
+                self.texture_time_label.config(text=f"{hours:02d}:{minutes:02d}:{seconds:02d}")
+                
+            # Update memory and CPU usage (if available)
+            try:
+                import psutil
+                process = psutil.Process()
+                memory_info = process.memory_info()
+                memory_mb = memory_info.rss / (1024 * 1024)
+                self.memory_usage_label.config(text=f"{memory_mb:.1f} MB")
+                
+                cpu_percent = process.cpu_percent(interval=0.1)
+                self.cpu_usage_label.config(text=f"{cpu_percent:.1f}%")
+            except (ImportError, Exception) as e:
+                # psutil might not be available, or other errors might occur
+                pass
             
         except Exception as e:
             logging.error(f"Error updating stats: {e}")
@@ -879,6 +1017,8 @@ class TextureExtractorGUI:
             
             # Only run SWEP detection if the module is explicitly enabled
             if swep_detector_enabled and self.config.get("SWEP_DETECTION", {}).get("enabled", True):
+                # Start timing SWEP detection
+                self.swep_start_time = time.time()
                 logging.info("Running SWEP detector...")
                 self.status_label.config(text="Scanning for SWEPs...")
                 self.window.update_idletasks()
@@ -938,6 +1078,10 @@ class TextureExtractorGUI:
                             all_texture_paths.extend(swep_textures)
                             logging.info(f"Added {len(swep_textures)} textures from SWEP detection")
                         
+                        # End timing SWEP detection
+                        self.swep_end_time = time.time()
+                        logging.info(f"SWEP detection completed in {self.swep_end_time - self.swep_start_time:.2f} seconds")
+                        
                         self._update_stats()
                     except Exception as e:
                         logging.error(f"Error in SWEP detection: {e}")
@@ -953,6 +1097,8 @@ class TextureExtractorGUI:
             
             # Process each VPK chunk if texture extractor is enabled
             if texture_extractor_enabled:
+                # Start timing texture extraction
+                self.texture_start_time = time.time()
                 for chunk_index, vpk_chunk in enumerate(vpk_chunks):
                     if not self.is_processing:
                         break
@@ -986,6 +1132,10 @@ class TextureExtractorGUI:
                 # Force update after each chunk
                 self._update_stats()
                 self.window.update_idletasks()
+                
+                # End timing texture extraction
+                self.texture_end_time = time.time()
+                logging.info(f"Texture extraction completed in {self.texture_end_time - self.texture_start_time:.2f} seconds")
                 time.sleep(0.01)  # Small delay to prevent GUI freezing
             
             # Create VMT files if we have textures
