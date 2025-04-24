@@ -840,8 +840,11 @@ class TextureExtractorGUI:
             chunk_size = 2  # Reduced chunk size for more frequent updates
             vpk_chunks = [self.vpk_files[i:i + chunk_size] for i in range(0, len(self.vpk_files), chunk_size)]
             
-            # Process SWEP detection if enabled
-            if self.config.get("SWEP_DETECTION", {}).get("enabled", True):
+            # Process SWEP detection if both the module and feature are enabled
+            module_config = self.config.get("MODULES", {})
+            swep_detector_enabled = module_config.get("swep_detector", True)
+            
+            if swep_detector_enabled and self.config.get("SWEP_DETECTION", {}).get("enabled", True):
                 self.status_label.config(text="Scanning for SWEPs...")
                 self.window.update_idletasks()
                 
@@ -907,35 +910,39 @@ class TextureExtractorGUI:
                 else:
                     logging.warning("Garry's Mod path not found, skipping SWEP detection")
             
-            # Process each VPK chunk
-            for chunk_index, vpk_chunk in enumerate(vpk_chunks):
-                if not self.is_processing:
-                    break
-                    
-                for path in vpk_chunk:
+            # Check if texture extractor module is enabled
+            texture_extractor_enabled = module_config.get("texture_extractor", True)
+            
+            # Process each VPK chunk if texture extractor is enabled
+            if texture_extractor_enabled:
+                for chunk_index, vpk_chunk in enumerate(vpk_chunks):
                     if not self.is_processing:
                         break
                         
-                    try:
-                        current_time = time.time()
-                        if current_time - last_progress_update >= 0.5:  # Update less frequently
-                            self.status_label.config(text=f"Processing VPK file {self.processed_files + 1} of {self.total_files}")
-                            if self.total_files > 0:
-                                # Overall progress: 25% (preload) + up to 25% for VPK processing
-                                progress = 25 + (self.processed_files / self.total_files) * 25
-                                self.progress_bar["value"] = progress
-                                self.action_progress_bar["value"] = (self.processed_files / self.total_files) * 100
-                            self._update_stats()
-                            self.window.update_idletasks()
-                            last_progress_update = current_time
+                    for path in vpk_chunk:
+                        if not self.is_processing:
+                            break
                             
-                        textures = file_processor.process_file(path)
-                        if textures:
-                            all_texture_paths.extend(textures)
-                        self.processed_files += 1
-                        
-                    except Exception as e:
-                        logging.error(f"Error processing {path}: {str(e)}")
+                        try:
+                            current_time = time.time()
+                            if current_time - last_progress_update >= 0.5:  # Update less frequently
+                                self.status_label.config(text=f"Processing VPK file {self.processed_files + 1} of {self.total_files}")
+                                if self.total_files > 0:
+                                    # Overall progress: 25% (preload) + up to 25% for VPK processing
+                                    progress = 25 + (self.processed_files / self.total_files) * 25
+                                    self.progress_bar["value"] = progress
+                                    self.action_progress_bar["value"] = (self.processed_files / self.total_files) * 100
+                                self._update_stats()
+                                self.window.update_idletasks()
+                                last_progress_update = current_time
+                                
+                            textures = file_processor.process_file(path)
+                            if textures:
+                                all_texture_paths.extend(textures)
+                            self.processed_files += 1
+                            
+                        except Exception as e:
+                            logging.error(f"Error processing {path}: {str(e)}")
                         self.errors += 1
                 
                 # Force update after each chunk

@@ -17,6 +17,12 @@ DEFAULT_CONFIG = {
     "ENABLE_TRANSPARENCY": True,
     "ENABLE_CUSTOM_SOUNDS": True,
     
+    # Module Settings
+    "MODULES": {
+        "swep_detector": True,  # Enable/disable SWEP detection module
+        "texture_extractor": True  # Enable/disable texture extraction module
+    },
+    
     # Processing Options
     "ENABLE_PARALLEL_PROCESSING": True,
     "MAX_THREADS": 4,
@@ -172,6 +178,19 @@ DEFAULT_CONFIG = {
         "verify_files": True,
         "max_workshop_size": 2048,
         "workshop_cache": True
+    },
+    
+    # Auto-Update Settings
+    "UPDATE": {
+        "enabled": True,
+        "check_interval": 86400,  # Check once per day (in seconds)
+        "auto_download": True,
+        "notify_only": False,
+        "include_beta": False,
+        "backup_before_update": True,
+        "update_channel": "stable",
+        "last_check": 0,
+        "skip_versions": []
     },
     
     # Logging and Debug

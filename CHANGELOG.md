@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.4] - 2025-04-24
+
+### Added
+- Module settings to enable/disable specific components
+- Option to bypass SWEP detection module for improved performance
+- Option to disable texture extraction module
+- Enhanced settings dialog with module configuration section
+
 ## [1.3.3] - 2025-04-24
 
 ### Fixed

@@ -49,6 +49,7 @@ class SettingsDialog:
         canvas.create_window((0, 0), window=self.settings_frame, anchor="nw")
         
         # Add settings sections
+        self._add_module_settings()  # Add the new module settings section first
         self._add_update_settings()
         self._add_backup_settings()
         self._add_transparency_settings()
@@ -78,6 +79,42 @@ class SettingsDialog:
         frame = ttk.LabelFrame(self.settings_frame, text=title, padding="10")
         frame.pack(fill=tk.X, padx=5, pady=5)
         return frame
+    
+    def _add_module_settings(self):
+        """Add module settings section to enable/disable specific modules."""
+        frame = self._add_section("Module Settings")
+        
+        # Get module settings from config
+        module_config = self.config.get("MODULES", {})
+        
+        # Create variables for module settings
+        self.module_vars = {
+            'swep_detector': tk.BooleanVar(value=module_config.get('swep_detector', True)),
+            'texture_extractor': tk.BooleanVar(value=module_config.get('texture_extractor', True))
+        }
+        
+        # Create module settings controls
+        ttk.Label(frame, text="Enable or disable specific modules:").pack(anchor="w", pady=(0, 5))
+        
+        # SWEP Detector module checkbox
+        swep_frame = ttk.Frame(frame)
+        swep_frame.pack(fill=tk.X, pady=2)
+        
+        ttk.Checkbutton(swep_frame, text="SWEP Detector", variable=self.module_vars['swep_detector']).pack(side=tk.LEFT)
+        ttk.Label(swep_frame, text="(Scans for weapon scripts and extracts textures)", font=("Segoe UI", 8)).pack(side=tk.LEFT, padx=(10, 0))
+        
+        # Texture Extractor module checkbox
+        texture_frame = ttk.Frame(frame)
+        texture_frame.pack(fill=tk.X, pady=2)
+        
+        ttk.Checkbutton(texture_frame, text="Texture Extractor", variable=self.module_vars['texture_extractor']).pack(side=tk.LEFT)
+        ttk.Label(texture_frame, text="(Extracts textures from VPK, BSP, and GMA files)", font=("Segoe UI", 8)).pack(side=tk.LEFT, padx=(10, 0))
+        
+        # Add a note about module dependencies
+        note_frame = ttk.Frame(frame)
+        note_frame.pack(fill=tk.X, pady=(10, 0))
+        ttk.Label(note_frame, text="Note: Disabling modules may improve performance but reduce functionality.", 
+                 font=("Segoe UI", 8), foreground="#666666").pack(anchor="w")
         
     def _add_update_settings(self):
         """Add update settings section with Check for Updates button."""
@@ -826,6 +863,14 @@ class SettingsDialog:
                 'backup_count': int(self.logging_backup_count_var.get())
             })
             self.config["LOGGING"] = logging_config
+            
+            # Update module settings
+            module_config = self.config.get("MODULES", {})
+            module_config.update({
+                'swep_detector': self.module_vars['swep_detector'].get(),
+                'texture_extractor': self.module_vars['texture_extractor'].get()
+            })
+            self.config["MODULES"] = module_config
             
             # Update update settings
             update_config = self.config.get("UPDATE", {})
