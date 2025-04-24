@@ -1,11 +1,12 @@
-# Texture Extractor v1.2.5
+# Texture Extractor v1.3.0
 
 A tool to extract and modify Garry's Mod textures.
 
 ## Features
 
 - Extracts textures from Source Engine games (GMod, CS:S, HL2, etc.)
-- Detects SWEPs (Scripted Weapons) and their associated models/textures
+- Advanced SWEP detection with gamemode-specific classification (TTT, DarkRP, Sandbox, Zombie Survival, Murder, Prop Hunt)
+- Extracts detailed SWEP metadata (PrintName, base class, category, gamemode, registration method)
 - Scans Lua files for model and texture references
 - Decodes Lua cache files (.lc) and Garry's Mod cache files using LZMA decompression
 - Generates VMT files for extracted textures
@@ -35,7 +36,9 @@ A tool to extract and modify Garry's Mod textures.
 5. Wait for the process to complete
 6. Check the output directory for extracted textures
 
-### Standalone Lua Cache Decompressor
+### Standalone Tools
+
+#### Lua Cache Decompressor
 
 A standalone tool is included to decompress Garry's Mod Lua cache files:
 
@@ -44,6 +47,20 @@ python tools/gmod_lua_cache_decompressor.py "C:\Path\To\GarrysMod\garrysmod\cach
 ```
 
 This will create a `decompressed` folder with all the decompressed Lua files.
+
+#### SWEP Analyzer
+
+A standalone tool for comprehensive SWEP detection and analysis:
+
+```bash
+python swep_analyzer.py
+```
+
+Features:
+- Scans all Lua files in Garry's Mod directories (including addons, cache, workshop)
+- Detects SWEPs from multiple gamemodes (TTT, DarkRP, Sandbox, Zombie Survival, Murder, Prop Hunt)
+- Handles binary Lua files through decode-first approach
+- Outputs detailed JSON report with gamemode and base class breakdowns
 
 ## Auto-Update System
 

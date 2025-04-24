@@ -18,7 +18,7 @@ from src.controllers.admin_controller import check_admin, request_admin, elevate
 from src.controllers.dependency_controller import check_and_install_dependencies
 from src.services.update_service import UpdateService
 
-VERSION = "1.2.5"
+VERSION = "1.3.0"
 APP_NAME = "Source Engine Asset Manager"
 
 def check_for_updates(config):

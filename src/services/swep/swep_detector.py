@@ -399,51 +399,69 @@ class SWEPDetector:
         except Exception as e:
             logging.error(f"Error scanning cache directory: {e}")
         
-        # Also check workshop folder
-        workshop_dir = self.game_path / "garrysmod" / "cache" / "workshop"
-        if not workshop_dir.exists():
-            workshop_dir = Path("J:/SteamLibrary/steamapps/common/GarrysMod/garrysmod/cache/workshop")
+        # Check multiple potential Lua file locations
+        potential_dirs = [
+            # Cache directories
+            self.game_path / "garrysmod" / "cache" / "workshop",
+            self.game_path / "garrysmod" / "cache" / "lua",
+            Path("J:/SteamLibrary/steamapps/common/GarrysMod/garrysmod/cache/workshop"),
+            Path("J:/SteamLibrary/steamapps/common/GarrysMod/garrysmod/cache/lua"),
+            
+            # Lua directories
+            self.game_path / "garrysmod" / "lua",
+            self.game_path / "garrysmod" / "addons",
+            Path("J:/SteamLibrary/steamapps/common/GarrysMod/garrysmod/lua"),
+            Path("J:/SteamLibrary/steamapps/common/GarrysMod/garrysmod/addons"),
+            
+            # Workshop content
+            self.game_path / "garrysmod" / "addons" / "workshop",
+            Path("J:/SteamLibrary/steamapps/workshop/content/4000"),  # Workshop content for GMod
+            
+            # Additional Steam library paths
+            Path("C:/Program Files (x86)/Steam/steamapps/common/GarrysMod/garrysmod/lua"),
+            Path("C:/Program Files (x86)/Steam/steamapps/common/GarrysMod/garrysmod/addons"),
+            Path("D:/Steam/steamapps/common/GarrysMod/garrysmod/lua"),
+            Path("D:/Steam/steamapps/common/GarrysMod/garrysmod/addons"),
+            Path("E:/Steam/steamapps/common/GarrysMod/garrysmod/lua"),
+            Path("E:/Steam/steamapps/common/GarrysMod/garrysmod/addons"),
+        ]
         
-        if workshop_dir.exists():
-            logging.info(f"Scanning workshop cache directory: {workshop_dir}")
-            try:
-                for file_path in workshop_dir.glob("**/*"):
-                    if file_path.is_file():
-                        lc_files.append(file_path)
-            except Exception as e:
-                logging.error(f"Error scanning workshop cache directory: {e}")
+        # Scan all potential directories
+        for dir_path in potential_dirs:
+            if dir_path.exists():
+                logging.info(f"Scanning directory: {dir_path}")
+                try:
+                    # Use a more targeted glob pattern to find Lua files
+                    for pattern in ["**/*.lua", "**/*.lc", "**/*.luac", "**/*.txt", "**/*.dat"]:
+                        for file_path in dir_path.glob(pattern):
+                            if file_path.is_file():
+                                lc_files.append(file_path)
+                    
+                    # Also scan for files without extensions that might be Lua files
+                    for file_path in dir_path.glob("**/*"):
+                        if file_path.is_file() and not file_path.suffix:
+                            lc_files.append(file_path)
+                except Exception as e:
+                    logging.error(f"Error scanning directory {dir_path}: {e}")
         
-        # Also check lua folder
-        lua_dir = self.game_path / "garrysmod" / "cache" / "lua"
-        if not lua_dir.exists():
-            lua_dir = Path("J:/SteamLibrary/steamapps/common/GarrysMod/garrysmod/cache/lua")
-        
-        if lua_dir.exists():
-            logging.info(f"Scanning lua cache directory: {lua_dir}")
-            try:
-                for file_path in lua_dir.glob("**/*"):
-                    if file_path.is_file():
-                        lc_files.append(file_path)
-            except Exception as e:
-                logging.error(f"Error scanning lua cache directory: {e}")
-        
-        # Filter out very large files and non-Lua related files for performance
-        debug_print(f"Starting file filtering, total files to check: {len(lc_files)}")
+        # First attempt to decode all files to find Lua content, then filter
+        debug_print(f"Starting file decoding and filtering, total files to check: {len(lc_files)}")
         filtered_files = []
         skipped_count = 0
         skip_reasons = {
             "file_not_exist": 0,
             "empty_file": 0,
             "file_too_large": 0,
-            "extension_skipped": 0,
-            "no_indicators": 0,
+            "decode_failed": 0,
+            "no_lua_content": 0,
             "error": 0
         }
         accepted_reasons = {
-            "lua_extension": 0,
-            "key_directory": 0,
-            "useful_prefix": 0,
-            "binary_pattern": 0
+            "contains_lua": 0,
+            "contains_swep": 0,
+            "contains_weapon": 0,
+            "contains_model": 0,
+            "contains_texture": 0
         }
         
         # Process files in batches to show progress
@@ -453,25 +471,101 @@ class SWEPDetector:
             debug_print(f"Processing batch {i//batch_size + 1}/{(len(lc_files) + batch_size - 1)//batch_size}, files {i+1}-{min(i+batch_size, len(lc_files))}")
             
             for file_path in batch:
-                # Use the comprehensive file check
-                is_processable, reason = self._is_file_processable(file_path)
-                
-                if is_processable:
-                    filtered_files.append(file_path)
-                    if reason in accepted_reasons:
-                        accepted_reasons[reason] += 1
+                try:
+                    # Skip files that don't exist or are empty
+                    if not file_path.exists():
+                        skipped_count += 1
+                        skip_reasons["file_not_exist"] += 1
+                        continue
+                        
+                    file_size = file_path.stat().st_size
+                    if file_size == 0:
+                        skipped_count += 1
+                        skip_reasons["empty_file"] += 1
+                        continue
+                        
+                    # Skip extremely large files
+                    if file_size > 20 * 1024 * 1024:  # 20MB
+                        skipped_count += 1
+                        skip_reasons["file_too_large"] += 1
+                        continue
+                    
+                    # Try to decode the file first with timeout protection
+                    decoded_content = None
+                    try:
+                        # Start a timer to prevent hanging on a single file
+                        start_time = time.time()
+                        
+                        # First try a quick check with binary read
+                        with open(file_path, 'rb') as f:
+                            content = f.read(4096)  # Read first 4KB
+                            # Convert binary to string for pattern matching
+                            quick_content = content.decode('utf-8', errors='ignore')
+                        
+                        # If the quick check shows promising content, try full decoding
+                        if ('SWEP' in quick_content or 'weapon' in quick_content.lower() or 
+                            'function' in quick_content or 'models/' in quick_content or
+                            'materials/' in quick_content):
+                            
+                            # Only attempt full decoding if quick check passes
+                            try:
+                                # Use the LuaCacheDecoder to attempt decoding with timeout
+                                decoded_content = self.lua_decoder.decode_file(file_path)
+                                
+                                # Check if decoding took too long
+                                if time.time() - start_time > 2.0:  # 2 second timeout
+                                    debug_print(f"Decoding took too long for {file_path}, using quick content")
+                                    decoded_content = quick_content
+                            except Exception as decode_e:
+                                debug_print(f"Decoding failed for {file_path}, using quick content: {decode_e}")
+                                decoded_content = quick_content
+                        else:
+                            # Use the quick content if no promising patterns found
+                            decoded_content = quick_content
+                            
+                    except Exception as e:
+                        debug_print(f"Error reading file {file_path}: {e}")
+                    
+                    # If we couldn't get any content, skip
+                    if not decoded_content:
+                        skipped_count += 1
+                        skip_reasons["decode_failed"] += 1
+                        continue
+                    
+                    # Check for Lua, SWEP, weapon, model, or texture patterns in the decoded content
+                    # Use a more efficient approach to check multiple patterns at once
+                    reason = None
+                    content_lower = decoded_content.lower()
+                    
+                    # Check for the most important patterns first
+                    if "swep" in content_lower:
+                        reason = "contains_swep"
+                    elif "weapon" in content_lower:
+                        reason = "contains_weapon"
+                    elif "function" in content_lower and ("local" in content_lower or "return" in content_lower):
+                        reason = "contains_lua"
+                    elif "models/" in content_lower:
+                        reason = "contains_model"
+                    elif "materials/" in content_lower:
+                        reason = "contains_texture"
+                    
+                    if reason:
+                        filtered_files.append(file_path)
+                        if reason in accepted_reasons:
+                            accepted_reasons[reason] += 1
+                        else:
+                            accepted_reasons[reason] = 1
                     else:
-                        accepted_reasons[reason] = 1
-                else:
+                        skipped_count += 1
+                        skip_reasons["no_lua_content"] += 1
+                except Exception as e:
                     skipped_count += 1
-                    if reason in skip_reasons:
-                        skip_reasons[reason] += 1
-                    else:
-                        skip_reasons[reason] = 1
+                    skip_reasons["error"] += 1
+                    debug_print(f"Error processing file {file_path}: {e}")
             
             # Show progress after each batch
             if (i + batch_size) % (batch_size * 5) == 0 or (i + batch_size) >= len(lc_files):
-                debug_print(f"Filtered {i + min(batch_size, len(lc_files) - i)}/{len(lc_files)} files, kept {len(filtered_files)} so far")
+                debug_print(f"Processed {i + min(batch_size, len(lc_files) - i)}/{len(lc_files)} files, kept {len(filtered_files)} so far")
         
         debug_print(f"File filtering complete. Kept {len(filtered_files)}, skipped {skipped_count} total")
         debug_print(f"Skipped breakdown: {skip_reasons}")
@@ -484,6 +578,17 @@ class SWEPDetector:
         max_workers = min(16, os.cpu_count() or 4)  # Reduced max workers to prevent overload
         logging.info(f"Processing cache files with {max_workers} parallel workers")
         print(f"Processing {total_files} cache files with {max_workers} parallel workers")
+        
+        # Log the number of files found by extension
+        extension_counts = {}
+        for file_path in filtered_files:
+            ext = file_path.suffix.lower()
+            if ext in extension_counts:
+                extension_counts[ext] += 1
+            else:
+                extension_counts[ext] = 1
+        
+        logging.info(f"Files by extension: {extension_counts}")
         
         # Process files in chunks to avoid memory issues
         chunk_size = 500
@@ -693,7 +798,7 @@ class SWEPDetector:
                 return False, "extension_skipped"
             
             # Always include files with these extensions
-            if file_ext in ['.lua', '.lc', '.luac', '', '.txt', '.dat']:
+            if file_ext.lower() in ['.lua', '.lc', '.luac', '', '.txt', '.dat', '.json', '.vmt', '.vtf', '.mdl']:
                 return True, "lua_extension"
                 
             # Always include files in these directories
@@ -837,8 +942,66 @@ class SWEPDetector:
         # Use the more comprehensive check
         is_processable, _ = self._is_file_processable(file_path)
         return is_processable
+    
+    def _detect_gamemode(self, base: str, category: str, content: str) -> str:
+        """Detect which gamemode a weapon belongs to based on its properties and content."""
+        content_lower = content.lower()
+        
+        # Check for TTT
+        ttt_indicators = ['ttt', 'terrortown', 'traitor', 'innocent', 'detective', 'weapon_ttt', 'WEAPON_EQUIP']
+        for indicator in ttt_indicators:
+            if indicator in content_lower:
+                return 'TTT'
+        if base and ('weapon_tttbase' in base or 'weapon_tttbasegrenade' in base):
+            return 'TTT'
+        
+        # Check for DarkRP
+        darkrp_indicators = ['darkrp', 'rp_', 'arrest', 'unarrest', 'wanted', 'police', 'mayor', 'gangster']
+        for indicator in darkrp_indicators:
+            if indicator in content_lower:
+                return 'DarkRP'
+        if category and 'darkrp' in category.lower():
+            return 'DarkRP'
+        
+        # Check for Zombie Survival
+        zs_indicators = ['zombiesurvival', 'zombify', 'undead', 'weapon_zs', 'zs_', 'zombie']
+        for indicator in zs_indicators:
+            if indicator in content_lower:
+                return 'Zombie Survival'
+        if base and 'weapon_zs_base' in base:
+            return 'Zombie Survival'
+        
+        # Check for Murder
+        murder_indicators = ['murder', 'mu_knife', 'mu_magnum', 'murderer', 'bystander']
+        for indicator in murder_indicators:
+            if indicator in content_lower:
+                return 'Murder'
+        
+        # Check for Prop Hunt
+        ph_indicators = ['prop_hunt', 'ph_', 'prophunt', 'ph_prop', 'ph_gun']
+        for indicator in ph_indicators:
+            if indicator in content_lower:
+                return 'Prop Hunt'
+        
+        # Check for other common gamemodes
+        if 'deathrun' in content_lower:
+            return 'Deathrun'
+        if 'jailbreak' in content_lower or 'jb_' in content_lower:
+            return 'Jailbreak'
+        if 'bhop' in content_lower:
+            return 'Bunny Hop'
+        if 'surf' in content_lower:
+            return 'Surf'
+        if 'cinema' in content_lower:
+            return 'Cinema'
+        if 'flood' in content_lower:
+            return 'Flood'
+        
+        # Default to Sandbox if no specific gamemode detected
+        if base and ('weapon_base' in base or 'gmod_base' in base):
+            return 'Sandbox'
             
-        return True  # Process by default
+        return 'Sandbox'
     
     def _process_lua_cache_file(self, lc_file: Path, progress_callback=None) -> Tuple[Set[str], Set[str], Dict, bool]:
         """Process a Lua cache file (.lc) using specialized decoding."""
@@ -856,7 +1019,7 @@ class SWEPDetector:
                 file_size = lc_file.stat().st_size
                 debug_print(f"File size: {file_size / 1024:.1f} KB")
                 
-                if file_size > 5 * 1024 * 1024:  # Skip files larger than 5MB
+                if file_size > 20 * 1024 * 1024:  # Skip files larger than 20MB (increased from 5MB)
                     skip_msg = f"Skipping large Lua cache file: {lc_file.name} ({file_size / 1024 / 1024:.2f} MB)"
                     print(skip_msg)
                     logging.debug(skip_msg)
@@ -883,14 +1046,18 @@ class SWEPDetector:
                 traceback.print_exc()
                 return texture_refs, model_refs, detected_sweps, False
             
-            # Check for timeout
+            # Check if decoding took too long
             decode_time = time.time() - start_time
             debug_print(f"Decode time: {decode_time:.2f}s for {lc_file}")
             
-            if decode_time > 3:  # If decoding took more than 3 seconds
+            if decode_time > 2:  # Reduced timeout from 3 to 2 seconds
                 timeout_msg = f"Lua cache decoding took too long for {lc_file.name} ({decode_time:.2f}s)"
                 print(timeout_msg)
                 logging.debug(timeout_msg)
+                
+                # Add a small delay to let other threads progress
+                time.sleep(0.1)
+                
                 return texture_refs, model_refs, detected_sweps, False
             
             if decoded_content:
@@ -898,22 +1065,78 @@ class SWEPDetector:
                 texture_refs.update(self._extract_texture_references_worker(decoded_content))
                 model_refs.update(self._extract_model_references_worker(decoded_content))
                 
-                # Look for SWEP definitions (limit the number of matches to avoid freezing)
-                swep_matches = list(itertools.islice(re.finditer(r'SWEP\s*=\s*\{([^}]+)\}', decoded_content, re.DOTALL), 0, 10))
+                # Look for various SWEP definition patterns
+                # 1. Standard SWEP = {} assignments
+                swep_matches = list(re.finditer(r'SWEP\s*=\s*\{([^}]+)\}', decoded_content, re.DOTALL))
+                
+                # 2. weapons.Register(...) calls
+                weapons_register_matches = list(re.finditer(r'weapons\.Register\s*\(\s*([^,]+),\s*["\']([^"\']*)["\'](.*?)\)', decoded_content, re.DOTALL))
+                
+                # Process standard SWEP definitions
                 for match in swep_matches:
-                    swep_table = match.group(1)
-                    swep_info = self._parse_swep_table(swep_table)
-                    
-                    if swep_info and 'PrintName' in swep_info:
-                        swep_name = swep_info['PrintName']
-                        swep_class = lc_file.stem
+                    try:
+                        swep_table = match.group(1)
+                        swep_info = self._parse_swep_table(swep_table)
                         
-                        # Store SWEP info
+                        if not swep_info:
+                            continue
+                            
+                        swep_name = swep_info.get('PrintName', 'Unknown')
+                        swep_class = lc_file.stem
+                        swep_base = swep_info.get('Base', 'weapon_base')
+                        swep_category = swep_info.get('Category', '')
+                        
+                        # Determine gamemode
+                        gamemode = self._detect_gamemode(swep_base, swep_category, decoded_content)
+                        
+                        # Store enhanced SWEP info
                         detected_sweps[swep_class] = {
                             'name': swep_name,
                             'class': swep_class,
+                            'base': swep_base,
+                            'category': swep_category,
+                            'gamemode': gamemode,
                             'file': str(lc_file),
                         }
+                    except Exception as e:
+                        debug_print(f"Error parsing SWEP table: {e}")
+                
+                # Process weapons.Register calls
+                for match in weapons_register_matches:
+                    try:
+                        table_var = match.group(1).strip()
+                        weapon_class = match.group(2).strip()
+                        
+                        # Try to find the table definition
+                        table_def_pattern = f"{table_var}\s*=\s*\{{([^}}]+)\}}"
+                        table_matches = list(re.finditer(table_def_pattern, decoded_content, re.DOTALL))
+                        
+                        if table_matches:
+                            table_content = table_matches[0].group(1)
+                            weapon_info = self._parse_swep_table(table_content)
+                            
+                            if not weapon_info:
+                                continue
+                                
+                            weapon_name = weapon_info.get('PrintName', 'Unknown')
+                            weapon_base = weapon_info.get('Base', 'weapon_base')
+                            weapon_category = weapon_info.get('Category', '')
+                            
+                            # Determine gamemode
+                            gamemode = self._detect_gamemode(weapon_base, weapon_category, decoded_content)
+                            
+                            # Store enhanced weapon info
+                            detected_sweps[weapon_class] = {
+                                'name': weapon_name,
+                                'class': weapon_class,
+                                'base': weapon_base,
+                                'category': weapon_category,
+                                'gamemode': gamemode,
+                                'file': str(lc_file),
+                                'registration': 'weapons.Register'
+                            }
+                    except Exception as e:
+                        debug_print(f"Error parsing weapons.Register: {e}")
                 
                 success = True
         except Exception as e:
@@ -955,7 +1178,7 @@ class SWEPDetector:
                 return texture_refs, model_refs, detected_sweps, False
                 
             # Read the file content as binary with timeout protection
-            debug_print(f"Reading workshop file content: {lc_file}")
+            # Start a timer to prevent hanging on a single file
             read_start = time.time()
             
             # Update progress
@@ -970,6 +1193,10 @@ class SWEPDetector:
                 read_time = time.time() - read_start
                 if read_time > 1.0:  # Log slow file reads
                     debug_print(f"WARNING: Slow file read: {read_time:.2f}s for {lc_file}")
+                    
+                # If reading took too long, add a small delay to let other threads progress
+                if read_time > 2.0:
+                    time.sleep(0.1)  # Small delay to prevent UI freezing
                     
                 debug_print(f"Read {len(binary_content)} bytes from workshop file")
             except Exception as e:
@@ -1157,161 +1384,92 @@ class SWEPDetector:
                 texture_refs.update(self._extract_texture_references_worker(content))
                 model_refs.update(self._extract_model_references_worker(content))
                 
-                # Look for SWEP definitions
-                swep_matches = re.finditer(r'SWEP\s*=\s*\{([^}]+)\}', content, re.DOTALL)
+                # Look for various SWEP definition patterns
+                # 1. Standard SWEP = {} assignments
+                swep_matches = list(re.finditer(r'SWEP\s*=\s*\{([^}]+)\}', decoded_content, re.DOTALL))
+                
+                # 2. weapons.Register(...) calls
+                weapons_register_matches = list(re.finditer(r'weapons\.Register\s*\(\s*([^,]+),\s*["\']([^"\']*)["\'](.*?)\)', decoded_content, re.DOTALL))
+                
+                # Process standard SWEP definitions
                 for match in swep_matches:
-                    swep_table = match.group(1)
-                    swep_info = self._parse_swep_table(swep_table)
-                    
-                    if swep_info and 'PrintName' in swep_info:
-                        swep_name = swep_info['PrintName']
-                        swep_class = lua_file.stem
+                    try:
+                        swep_table = match.group(1)
+                        swep_info = self._parse_swep_table(swep_table)
                         
-                        # Store SWEP info
+                        if not swep_info:
+                            continue
+                            
+                        swep_name = swep_info.get('PrintName', 'Unknown')
+                        swep_class = lc_file.stem
+                        swep_base = swep_info.get('Base', 'weapon_base')
+                        swep_category = swep_info.get('Category', '')
+                        
+                        # Determine gamemode
+                        gamemode = self._detect_gamemode(swep_base, swep_category, decoded_content)
+                        
+                        # Store enhanced SWEP info
                         detected_sweps[swep_class] = {
                             'name': swep_name,
                             'class': swep_class,
-                            'file': str(lua_file),
+                            'base': swep_base,
+                            'category': swep_category,
+                            'gamemode': gamemode,
+                            'file': str(lc_file),
                         }
+                    except Exception as e:
+                        debug_print(f"Error parsing SWEP table: {e}")
+                
+                # Process weapons.Register calls
+                for match in weapons_register_matches:
+                    try:
+                        table_var = match.group(1).strip()
+                        weapon_class = match.group(2).strip()
+                        
+                        # Try to find the table definition
+                        table_def_pattern = f"{table_var}\s*=\s*\{{([^}}]+)\}}"
+                        table_matches = list(re.finditer(table_def_pattern, decoded_content, re.DOTALL))
+                        
+                        if table_matches:
+                            table_content = table_matches[0].group(1)
+                            weapon_info = self._parse_swep_table(table_content)
+                            
+                            if not weapon_info:
+                                continue
+                                
+                            weapon_name = weapon_info.get('PrintName', 'Unknown')
+                            weapon_base = weapon_info.get('Base', 'weapon_base')
+                            weapon_category = weapon_info.get('Category', '')
+                            
+                            # Determine gamemode
+                            gamemode = self._detect_gamemode(weapon_base, weapon_category, decoded_content)
+                            
+                            # Store enhanced weapon info
+                            detected_sweps[weapon_class] = {
+                                'name': weapon_name,
+                                'class': weapon_class,
+                                'base': weapon_base,
+                                'category': weapon_category,
+                                'gamemode': gamemode,
+                                'file': str(lc_file),
+                                'registration': 'weapons.Register'
+                            }
+                    except Exception as e:
+                        debug_print(f"Error parsing weapons.Register: {e}")
                 
                 success = True
         except Exception as e:
             logging.debug(f"Regular Lua processing failed for {lua_file.name}: {e}")
             
-        return texture_refs, model_refs, detected_sweps, success
-        
-    def _is_likely_swep(self, content: str) -> bool:
-        """Quick check if content is likely to contain SWEP data."""
-        # Check for common SWEP-related strings
-        swep_indicators = [
-            'SWEP.', 'weapons/', 'models/weapons', 'materials/weapons',
-            'ViewModel', 'WorldModel', 'Primary.', 'Secondary.'
-        ]
-        
-        for indicator in swep_indicators:
-            if indicator in content:
-                return True
-        return False
-    
-    def _extract_texture_references_worker(self, content: str) -> Set[str]:
-        """Extract texture references from content in a worker thread."""
-        results = set()
-        for pattern in self.config['weapon_texture_patterns']:
-            # Convert pattern to a regex that looks for the pattern in a string or as part of a path
-            regex_pattern = f"['\"]([^'\"]*{re.escape(pattern)}[^'\"]*\.vtf)['\"]|([^\s]*{re.escape(pattern)}[^\s]*\.vtf)"
-            matches = re.finditer(regex_pattern, content, re.IGNORECASE)
-            for match in matches:
-                texture_path = match.group(1) or match.group(2)
-                if texture_path:
-                    # Normalize the path
-                    texture_path = texture_path.replace('\\', '/')
-                    results.add(texture_path)
-        return results
-    
-    def _extract_model_references_worker(self, content: str) -> Set[str]:
-        """Extract model references from content in a worker thread."""
-        results = set()
-        for pattern in self.config['weapon_model_patterns']:
-            # Convert pattern to a regex that looks for the pattern in a string or as part of a path
-            regex_pattern = f"['\"]([^'\"]*{re.escape(pattern)}[^'\"]*\.mdl)['\"]|([^\s]*{re.escape(pattern)}[^\s]*\.mdl)"
-            matches = re.finditer(regex_pattern, content, re.IGNORECASE)
-            for match in matches:
-                model_path = match.group(1) or match.group(2)
-                if model_path:
-                    # Normalize the path
-                    model_path = model_path.replace('\\', '/')
-                    results.add(model_path)
-        return results
-    
-    def _process_lua_file(self, lua_file: Path):
-        """Process a Lua file to extract SWEP information."""
-        try:
-            with open(lua_file, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-            
-            self._process_lua_content(content, lua_file)
-        except Exception as e:
-            logging.error(f"Error reading {lua_file}: {e}")
-    
-    def _extract_texture_references(self, content: str):
-        """Extract texture references from Lua content."""
-        # Look for texture patterns in the content
-        for pattern in self.config['weapon_texture_patterns']:
-            # Convert pattern to a regex that looks for the pattern in a string or as part of a path
-            regex_pattern = f"['\"]([^'\"]*{re.escape(pattern)}[^'\"]*\.vtf)['\"]|([^\s]*{re.escape(pattern)}[^\s]*\.vtf)"
-            matches = re.finditer(regex_pattern, content, re.IGNORECASE)
-            for match in matches:
-                texture_path = match.group(1) or match.group(2)
-                if texture_path:
-                    # Normalize the path
-                    texture_path = texture_path.replace('\\', '/')
-                    self.texture_references.add(texture_path)
-    
-    def _extract_model_references(self, content: str):
-        """Extract model references from Lua content."""
-        # Look for model patterns in the content
-        for pattern in self.config['weapon_model_patterns']:
-            # Convert pattern to a regex that looks for the pattern in a string or as part of a path
-            regex_pattern = f"['\"]([^'\"]*{re.escape(pattern)}[^'\"]*\.mdl)['\"]|([^\s]*{re.escape(pattern)}[^\s]*\.mdl)"
-            matches = re.finditer(regex_pattern, content, re.IGNORECASE)
-            for match in matches:
-                model_path = match.group(1) or match.group(2)
-                if model_path:
-                    # Normalize the path
-                    model_path = model_path.replace('\\', '/')
-                    self.model_references.add(model_path)
-    
-    def _extract_binary_references(self, binary_content: bytes, file_path: Path):
-        """Extract references from binary content."""
-        # Try to find strings that look like texture or model paths
-        # Convert binary to string for regex processing, ignoring decoding errors
-        try:
-            text_content = binary_content.decode('utf-8', errors='ignore')
-            
-            # Extract texture and model references
-            self._extract_texture_references(text_content)
-            self._extract_model_references(text_content)
-            
-            # Look for specific binary patterns that might indicate SWEP data
-            for pattern in self.config['binary_patterns']:
-                if pattern in binary_content:
-                    logging.info(f"Found binary pattern {pattern} in {file_path}")
-                    # If we find a SWEP pattern, add it to detected SWEPs with limited info
-                    swep_class = file_path.stem
-                    if swep_class not in self.detected_sweps:
-                        self.detected_sweps[swep_class] = {
-                            'name': f"Binary SWEP {swep_class}",
-                            'class': swep_class,
-                            'file': str(file_path),
-                            'binary': True
-                        }
+{{ ... }}
                         self.stats['sweps_detected'] += 1
                         logging.info(f"Detected binary SWEP: {swep_class}")
         except Exception as e:
             logging.error(f"Error processing binary content from {file_path}: {e}")
     
-    def _process_lua_content(self, content: str, file_path: Path):
-        """Process Lua content to extract SWEP information."""
-        # Extract SWEP table definition
-        swep_matches = re.finditer(r'SWEP\s*=\s*\{([^}]+)\}', content, re.DOTALL)
-        for match in swep_matches:
-            swep_table = match.group(1)
-            swep_info = self._parse_swep_table(swep_table)
-            
-            if swep_info and 'PrintName' in swep_info:
-                swep_name = swep_info['PrintName']
-                swep_class = file_path.stem
-                
-                # Store SWEP info
-                self.detected_sweps[swep_class] = {
-                    'name': swep_name,
-                    'class': swep_class,
-                    'file': str(file_path),
-                    'info': swep_info
-                }
-                
-                # Extract model paths
-                for model_key in ['ViewModel', 'WorldModel']:
+    def _parse_swep_table(self, table_content: str) -> Dict[str, str]:
+        """Extract key information from a SWEP table definition."""
+        result = {}
                     if model_key in swep_info:
                         model_path = swep_info[model_key]
                         if model_path and isinstance(model_path, str):
@@ -1329,29 +1487,11 @@ class SWEPDetector:
                 # Extract VMT/VTF references
                 vmt_matches = re.finditer(r'["\'](materials/[^"\']*.(?:vmt|vtf))["\'](\s*,\s*[^)]*)?', content, re.DOTALL)
                 for vmt_match in vmt_matches:
+        
                     texture_path = vmt_match.group(1)
                     if texture_path:
                         self.texture_references.add(texture_path)
                         self.stats['textures_found'] += 1
-    
-    def _parse_swep_table(self, swep_table: str) -> Dict:
-        """Parse a SWEP table definition."""
-        swep_info = {}
-        
-        # Split the table into key-value pairs
-        pairs = re.split(r'\s*,\s*', swep_table)
-        
-        for pair in pairs:
-            match = re.match(r'\s*([a-zA-Z_]+)\s*=\s*"?([^"\']*)"?', pair)
-            if match:
-                key = match.group(1)
-                value = match.group(2)
-                
-                # Convert to boolean if possible
-                if value.lower() == 'true':
-                    value = True
-                elif value.lower() == 'false':
-                    value = False
                 
                 swep_info[key] = value
         
