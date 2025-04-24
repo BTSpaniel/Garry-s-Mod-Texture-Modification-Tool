@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.5] - 2025-04-24
+
+### Added
+- New "Modules" tab in the statistics section for detailed module tracking
+- Real-time performance metrics for SWEP detection and texture extraction
+- Memory and CPU usage monitoring (requires psutil package)
+- Visual indicators for module status (active/disabled)
+- Module-specific timing information to track processing duration
+- Enhanced UI feedback for module performance
+
 ## [1.3.4] - 2025-04-24
 
 ### Added
