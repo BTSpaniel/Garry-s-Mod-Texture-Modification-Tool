@@ -6,8 +6,10 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import logging
+import threading
 
 from src.config.config_manager import load_config, save_config, save_settings_to_file
+from src.services.update_service import UpdateService
 
 class SettingsDialog:
     """Dialog for configuring application settings."""
@@ -47,6 +49,7 @@ class SettingsDialog:
         canvas.create_window((0, 0), window=self.settings_frame, anchor="nw")
         
         # Add settings sections
+        self._add_update_settings()
         self._add_backup_settings()
         self._add_transparency_settings()
         self._add_weapon_color_settings()
@@ -75,6 +78,102 @@ class SettingsDialog:
         frame = ttk.LabelFrame(self.settings_frame, text=title, padding="10")
         frame.pack(fill=tk.X, padx=5, pady=5)
         return frame
+        
+    def _add_update_settings(self):
+        """Add update settings section with Check for Updates button."""
+        frame = self._add_section("Update Settings")
+        
+        # Get update settings from config
+        update_config = self.config.get("UPDATE", {})
+        
+        self.update_vars = {
+            'enabled': tk.BooleanVar(value=update_config.get('enabled', True)),
+            'auto_download': tk.BooleanVar(value=update_config.get('auto_download', True)),
+            'include_beta': tk.BooleanVar(value=update_config.get('include_beta', False)),
+            'backup_before_update': tk.BooleanVar(value=update_config.get('backup_before_update', True))
+        }
+        
+        # Create update settings controls
+        ttk.Checkbutton(frame, text="Enable Automatic Updates", variable=self.update_vars['enabled']).pack(anchor="w")
+        ttk.Checkbutton(frame, text="Auto-download Updates", variable=self.update_vars['auto_download']).pack(anchor="w")
+        ttk.Checkbutton(frame, text="Include Beta Versions", variable=self.update_vars['include_beta']).pack(anchor="w")
+        ttk.Checkbutton(frame, text="Backup Before Update", variable=self.update_vars['backup_before_update']).pack(anchor="w")
+        
+        # Add separator
+        ttk.Separator(frame, orient='horizontal').pack(fill='x', padx=5, pady=10)
+        
+        # Add Check for Updates button
+        check_updates_button = ttk.Button(frame, text="Check for Updates Now", command=self._check_for_updates)
+        check_updates_button.pack(pady=5)
+        
+        # Add status label
+        self.update_status_var = tk.StringVar(value="")
+        status_label = ttk.Label(frame, textvariable=self.update_status_var, wraplength=400)
+        status_label.pack(pady=5)
+        
+    def _check_for_updates(self):
+        """Check for updates and show the result to the user."""
+        # Update status
+        self.update_status_var.set("Checking for updates...")
+        
+        # Create update service with current config
+        update_service = UpdateService(self.config)
+        
+        # Function to run in thread
+        def check_updates_thread():
+            try:
+                # Check for updates
+                update_available, latest_version, release_notes = update_service.check_for_updates()
+                
+                if update_available:
+                    # Show update available message
+                    self.update_status_var.set(f"Update available: v{latest_version}")
+                    
+                    # Ask if user wants to update now
+                    if messagebox.askyesno("Update Available", 
+                                          f"A new version ({latest_version}) is available!\n\n" +
+                                          f"Release Notes:\n{release_notes[:300]}...\n\n" +
+                                          "Do you want to update now?"):
+                        
+                        # Update status
+                        self.update_status_var.set(f"Downloading update v{latest_version}...")
+                        
+                        # Download update
+                        if update_service.download_update(latest_version):
+                            self.update_status_var.set(f"Applying update v{latest_version}...")
+                            
+                            # Apply update
+                            if update_service.apply_update(latest_version):
+                                messagebox.showinfo("Update Complete", 
+                                                  f"Update to version {latest_version} completed successfully.\n\n" +
+                                                  "The application will now restart.")
+                                
+                                # Restart application
+                                update_service.restart_application()
+                            else:
+                                self.update_status_var.set("Failed to apply update.")
+                                messagebox.showerror("Update Failed", 
+                                                   "Failed to apply update. Please try again later or update manually.")
+                        else:
+                            self.update_status_var.set("Failed to download update.")
+                            messagebox.showerror("Update Failed", 
+                                               "Failed to download update. Please check your internet connection and try again.")
+                else:
+                    # Show no update available message
+                    current_version = update_service.current_version
+                    self.update_status_var.set(f"You have the latest version (v{current_version}).") 
+                    messagebox.showinfo("No Updates Available", 
+                                      f"You have the latest version (v{current_version}).") 
+            except Exception as e:
+                # Show error message
+                self.update_status_var.set(f"Error checking for updates: {str(e)}")
+                logging.error(f"Error checking for updates: {e}")
+                messagebox.showerror("Update Error", f"Error checking for updates: {str(e)}")
+        
+        # Start update check in background thread
+        update_thread = threading.Thread(target=check_updates_thread)
+        update_thread.daemon = True
+        update_thread.start()
     
     # Texture settings section removed as we're not processing textures
     
@@ -727,6 +826,16 @@ class SettingsDialog:
                 'backup_count': int(self.logging_backup_count_var.get())
             })
             self.config["LOGGING"] = logging_config
+            
+            # Update update settings
+            update_config = self.config.get("UPDATE", {})
+            update_config.update({
+                'enabled': self.update_vars['enabled'].get(),
+                'auto_download': self.update_vars['auto_download'].get(),
+                'include_beta': self.update_vars['include_beta'].get(),
+                'backup_before_update': self.update_vars['backup_before_update'].get()
+            })
+            self.config["UPDATE"] = update_config
             
             # Save all settings to file
             save_config(self.config)
