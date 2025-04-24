@@ -1,4 +1,4 @@
-# Texture Extractor v1.2.3
+# Texture Extractor v1.2.5
 
 A tool to extract and modify Garry's Mod textures.
 
@@ -12,6 +12,7 @@ A tool to extract and modify Garry's Mod textures.
 - Supports custom output paths
 - Modern GUI with progress tracking
 - Includes standalone tools for Lua cache decompression
+- Automatic updates from GitHub repository
 
 ## Requirements
 
@@ -44,7 +45,37 @@ python tools/gmod_lua_cache_decompressor.py "C:\Path\To\GarrysMod\garrysmod\cach
 
 This will create a `decompressed` folder with all the decompressed Lua files.
 
+## Auto-Update System
+
+The application includes an automatic update system that checks for new versions on GitHub:
+
+- Automatically checks for updates at startup
+- Downloads and applies updates with user permission
+- Creates backups before applying updates
+- Restarts the application automatically after updating
+- Configurable update settings in the configuration file
+
+You can disable automatic updates by setting `"enabled": false` in the `UPDATE` section of the configuration file.
+
 ## Changelog
+
+### v1.2.5 (2025-04-24)
+
+- Fixed version comparison in the update system to handle various version formats
+- Added manual "Check for Updates" button in the settings dialog
+- Enhanced update notification system with detailed status messages
+- Improved error handling and robustness in the update process
+- Fixed issue with version detection in the update service
+- Added configuration options for controlling update behavior
+
+### v1.2.4 (2025-04-24)
+
+- Added automatic update system that checks for and applies updates from GitHub
+- Enhanced SWEP detection with expanded directory list and weapon prefixes
+- Added comprehensive weapon prefix list with hundreds of specific weapon models and types
+- Added case-insensitive matching for directory and prefix detection
+- Improved binary pattern matching with larger buffer size
+- Added support for more file types in SWEP detection
 
 ### v1.2.3 (2025-04-24)
 
