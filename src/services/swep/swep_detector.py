@@ -688,17 +688,44 @@ class SWEPDetector:
             }
             
             # Skip files with extensions that definitely aren't Lua cache
-            if file_ext in skip_extensions:
+            # Only skip if we're certain it's not a Lua file with a weird extension
+            if file_ext in skip_extensions and not ('weapon' in file_name.lower() or 'swep' in file_name.lower()):
                 return False, "extension_skipped"
             
             # Always include files with these extensions
-            if file_ext in ['.lua', '.lc', '.luac']:
+            if file_ext in ['.lua', '.lc', '.luac', '', '.txt', '.dat']:
                 return True, "lua_extension"
                 
             # Always include files in these directories
-            key_directories = ['lua/weapons', 'lua/cache', 'workshop', 'addons/weapons']
+            key_directories = [
+                # Core Lua logic
+                'lua/weapons', 'lua/sweps', 'lua/entities', 'lua/effects',
+                'lua/autorun', 'lua/includes', 'lua/vgui', 'lua/derma',
+                'lua/menu', 'lua/wire', 'lua/hooks', 'lua/skins',
+                'lua/items', 'lua/jobs', 'lua/config', 'lua/npcs',
+                'lua/postprocess', 'lua/skins', 'lua/modules',
+                'lua/terrortown', 'lua/ttt', 'lua/darkrp', 'lua/ulx', 'lua/ulib',
+                'lua/express', 'lua/pac3', 'lua/pac', 'lua/falco',
+                
+                # Content roots
+                'addons/', 'addons/weapons', 'addons/entities', 'addons/lua',
+                'addons/materials', 'addons/models', 'addons/sound', 'addons/particles',
+                
+                # Asset directories
+                'materials/', 'models/', 'sound/', 'scripts/', 'particles/',
+                'data/', 'resource/', 'resource/fonts/', 'backgrounds/',
+
+                # Game structure
+                'gamemodes/', 'garrysmod/lua', 'garrysmod/gamemodes', 'garrysmod/addons',
+                'garrysmod/data', 'garrysmod/materials', 'garrysmod/models',
+                
+                # Misc/rare folders
+                'maps/', 'maps/soundcache/', 'download/', 'downloads/', 'media/',
+                'workshop/', 'workshop/materials', 'workshop/models', 'workshop/lua',
+                'cache/', 'lua/cache', 'cfg/', 'html/', 'shaders/'
+            ]
             for directory in key_directories:
-                if directory in file_path_str:
+                if directory.lower() in file_path_str.lower():
                     return True, "key_directory"
             
             # Define prefixes that indicate likely SWEP content, GMod, and popular gamemodes
@@ -712,7 +739,7 @@ class SWEPDetector:
                 'accuracy', 'damage', 'range', 'penetration', 'armor', 'kevlar', 'helmet', 'shield',
                 
                 # GMod and gamemode-specific prefixes
-                'weapon_', 'swep_', 'gun_',  # Common weapon prefixes
+                'weapon_', 'swep_', 'gun_', 'w_', 'v_',  # Common weapon prefixes
                 'gm_', 'sandbox_', 'darkrp_', 'ttt_', 'murder_',  # Popular gamemodes
                 'prop_', 'puzzle_', 'srp_', 'sb_', 'zombies_',  # Other game-related prefixes
                 'rp_', 'flood_', 'build_', 'escape_', 'hide_',  # More gamemodes and content
@@ -724,20 +751,72 @@ class SWEPDetector:
                 'tardis_', 'lag_', 'noob_', 'jail_',  # Specific or niche gamemodes
                 'arena_', 'traps_', 'dl_', 'quest_', 'maze_',  # Additional variety of content
                 'gng_', 'juggernaut_', 'capture_', 'scav_',  # More popular and niche
-                'rocket_', 'stray_', 'holdout_', 'skirmish_'  # More custom and gamemode prefixes
+                'rocket_', 'stray_', 'holdout_', 'skirmish_',  # More custom and gamemode prefixes
+                
+                # Additional common GMod weapon prefixes
+                'm9k_', 'fas2_', 'cw_', 'arc_', 'fas_', 'tfa_', 'khr_', 'rw_', 'mg_',
+                'eft_', 'arccw_', 'bobs_', 'mw_', 'rust_', 'bf_', 'bf4_', 'bf3_', 'cod_',
+                'mw2_', 'mw3_', 'bo_', 'bo2_', 'bo3_', 'waw_', 'doi_', 'ins_', 'ins2_',
+                'kf_', 'kf2_', 'l4d_', 'l4d2_', 'cs_', 'css_', 'csgo_', 'gfl_', 'hl_', 'hl2_',
+                'dod_', 'dods_', 'tf_', 'tf2_', 'ut_', 'ut2_', 'ut3_', 'ut4_', 'quake_',
+                'doom_', 'halo_', 'scp_', 'stalker_', 'metro_', 'fallout_', 'fo_', 'fo3_', 'fo4_',
+                'fnv_', 'crysis_', 'fc_', 'fc2_', 'fc3_', 'fc4_', 'fc5_', 'gta_', 'gta4_', 'gta5_',
+                'rdr_', 'rdr2_', 'payday_', 'pd_', 'pd2_', 'bf1_', 'bfv_', 'bfh_', 'bfbc_', 'bfbc2_',
+                'sw_', 'starwars_', 'swbf_', 'swbf2_', 'jedi_', 'sith_', 'lightsaber_',
+                'ac_', 'acr_', 'aco_', 'ac3_', 'ac4_', 'acu_', 'acs_', 'acb_', 'ace_', 'acw_',
+                'mgsv_', 'mgs_', 'mgs3_', 'mgs4_', 'mgs5_', 'mw19_', 'mw22_', 'mwii_',
+                
+                # Specific weapon types and models
+                'ak', 'ar', 'm4', 'm16', 'mp5', 'mp7', 'mp9', 'uzi', 'mac10', 'mac11',
+                'glock', 'beretta', 'deagle', 'revolver', 'magnum', 'python', 'colt',
+                'scar', 'famas', 'galil', 'aug', 'sg', 'g3', 'g36', 'hk', 'fn', 'p90',
+                'ump', 'ppsh', 'thompson', 'vector', 'awp', 'scout', 'dragunov', 'svd',
+                'mosin', 'kar98', 'springfield', 'enfield', 'garand', 'bar', 'bren',
+                'mg42', 'mg34', 'm60', 'm249', 'minigun', 'gatling', 'rpg', 'bazooka',
+                'launcher', 'c4', 'claymore', 'mine', 'tnt', 'dynamite', 'semtex',
+                'frag', 'smoke', 'flash', 'stun', 'molotov', 'incendiary', 'flame',
+                'katana', 'machete', 'axe', 'crowbar', 'hammer', 'bat', 'club', 'pipe',
+                'spear', 'bow', 'crossbow', 'arrow', 'bolt', 'dart', 'throwing',
+                'rpk', 'pkm', 'pkp', 'mk', 'l85', 'l86', 'l96', 'l115', 'l118', 'l129',
+                'vss', 'val', 'vintorez', 'bizon', 'saiga', 'spas', 'benelli', 'mossberg',
+                'remington', 'winchester', 'ithaca', 'nova', 'toz', 'aa12', 'usas', 'striker',
+                'barret', 'intervention', 'msr', 'dsr', 'cheytac', 'lapua', 'srs', 'tac21',
+                'ssg', 'steyr', 'aug', 'tavor', 'tar', 'fal', 'g3', 'g36', 'hk416', 'hk417',
+                'm14', 'm1a', 'socom', 'mk11', 'mk12', 'mk14', 'mk17', 'mk18', 'mk20',
+                'sr25', 'scar', 'acr', 'honey', 'badger', 'bushmaster', 'sig', 'sauer',
+                'p226', 'p228', 'p229', 'p320', 'p365', 'p938', 'm17', 'm18', 'm9',
+                '1911', '92fs', 'px4', 'apx', 'cx4', 'cx4storm', 'arx', 'arx160', 'arx200',
+                'fnx', 'fnp', 'fiveseven', 'fnscar', 'fnfal', 'fnp90', 'fnps90', 'fnminimi',
+                'fnmag', 'fnm249', 'fnm240', 'fnm2010', 'fnballista', 'fnspr', 'fnf2000',
+                'fnfs2000', 'fncal', 'fn57', 'fn509', 'fn503', 'fn502', 'fn15', 'fn40gl',
+                'fnmk48', 'cz', 'cz75', 'cz85', 'cz97', 'cz52', 'cz82', 'cz83', 'cz100',
+                'cz110', 'cz999', 'cz2075', 'cz805', 'cz807', 'cz858', 'vz58', 'vz61',
+                'skorpion', 'vz82', 'vz83', 'vz52', 'vz24', 'vz98', 'bren', 'zb26', 'zb30',
+                'zb53', 'uk59', 'uk68', 'uk59l', 'vz59', 'vz37', 'vz15', 'vz26', 'vz30',
+                'vz33', 'vz35', 'vz38', 'vz42', 'vz43', 'vz44', 'vz45', 'vz47', 'vz52',
+                'vz54', 'vz57', 'vz59', 'vz61', 'vz62', 'vz63', 'vz64', 'vz66', 'vz68',
+                'vz70', 'vz72', 'vz74', 'vz76', 'vz78', 'vz82', 'vz83', 'vz85', 'vz88',
+                'vz90', 'vz91', 'vz92', 'vz95', 'vz97', 'vz98', 'vz99', 'vz01', 'vz04',
+                'vz05', 'vz06', 'vz08', 'vz09', 'vz10', 'vz11', 'vz12', 'vz13', 'vz14',
+                'vz15', 'vz16', 'vz17', 'vz18', 'vz19', 'vz20', 'vz21', 'vz22', 'vz23',
+                'vz24', 'vz25', 'vz26', 'vz27', 'vz28', 'vz29', 'vz30', 'vz31', 'vz32',
+                'vz33', 'vz34', 'vz35', 'vz36', 'vz37', 'vz38', 'vz39', 'vz40', 'vz41',
+                'vz42', 'vz43', 'vz44', 'vz45', 'vz46', 'vz47', 'vz48', 'vz49', 'vz50'
             ]
             
             # Check if the file name contains any useful prefixes
+            # Convert to lowercase for case-insensitive matching
+            file_name_lower = file_name.lower()
             for prefix in useful_prefixes:
-                if prefix in file_name:
+                if prefix.lower() in file_name_lower:
                     return True, "useful_prefix"
             
-            # Quick binary check for small files (< 100KB)
-            if file_size < 100 * 1024:
+            # Quick binary check for files (< 500KB to catch more potential files)
+            if file_size < 500 * 1024:
                 try:
-                    # Read the first 1KB of the file to check if it's binary
+                    # Read the first 4KB of the file to check if it's binary
                     with open(file_path, 'rb') as f:
-                        header = f.read(1024)
+                        header = f.read(4096)
                         
                     # Check if it contains any of our binary patterns
                     for pattern in self.config['binary_patterns']:
