@@ -494,102 +494,167 @@ class TextureExtractorGUI:
             # Create general statistics with a simple grid layout
             # Left column
             row = 0
-            ttk.Label(self.general_stats_frame, text="Files Found:", style='StatLabel.TLabel').grid(row=row, column=0, sticky="w", padx=10, pady=5)
-            self.stats_labels['found'] = ttk.Label(self.general_stats_frame, text="0", style='StatValue.TLabel')
-            self.stats_labels['found'].grid(row=row, column=0, sticky="e", padx=40, pady=5)
+            
+            # Create a container frame for each stat to ensure proper spacing
+            left_frame1 = ttk.Frame(self.general_stats_frame)
+            left_frame1.grid(row=row, column=0, sticky="ew", padx=10, pady=5)
+            left_frame1.columnconfigure(0, weight=1)
+            left_frame1.columnconfigure(1, weight=1)
+            
+            ttk.Label(left_frame1, text="Files Found: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
+            self.stats_labels['found'] = ttk.Label(left_frame1, text="0", style='StatValue.TLabel')
+            self.stats_labels['found'].grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Right column
-            ttk.Label(self.general_stats_frame, text="Files Processed:", style='StatLabel.TLabel').grid(row=row, column=1, sticky="w", padx=10, pady=5)
-            self.stats_labels['processed'] = ttk.Label(self.general_stats_frame, text="0", style='StatValue.TLabel')
-            self.stats_labels['processed'].grid(row=row, column=1, sticky="e", padx=40, pady=5)
+            right_frame1 = ttk.Frame(self.general_stats_frame)
+            right_frame1.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+            right_frame1.columnconfigure(0, weight=1)
+            right_frame1.columnconfigure(1, weight=1)
+            
+            ttk.Label(right_frame1, text="Files Processed: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
+            self.stats_labels['processed'] = ttk.Label(right_frame1, text="0", style='StatValue.TLabel')
+            self.stats_labels['processed'].grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Row 2
             row = 1
-            ttk.Label(self.general_stats_frame, text="VMTs Created:", style='StatLabel.TLabel').grid(row=row, column=0, sticky="w", padx=10, pady=5)
-            self.stats_labels['created'] = ttk.Label(self.general_stats_frame, text="0", style='StatValue.TLabel')
-            self.stats_labels['created'].grid(row=row, column=0, sticky="e", padx=40, pady=5)
             
-            ttk.Label(self.general_stats_frame, text="VMTs Deleted:", style='StatLabel.TLabel').grid(row=row, column=1, sticky="w", padx=10, pady=5)
-            self.stats_labels['deleted'] = ttk.Label(self.general_stats_frame, text="0", style='StatValue.TLabel')
-            self.stats_labels['deleted'].grid(row=row, column=1, sticky="e", padx=40, pady=5)
+            # Create a container frame for each stat to ensure proper spacing
+            left_frame2 = ttk.Frame(self.general_stats_frame)
+            left_frame2.grid(row=row, column=0, sticky="ew", padx=10, pady=5)
+            left_frame2.columnconfigure(0, weight=1)
+            left_frame2.columnconfigure(1, weight=1)
+            
+            ttk.Label(left_frame2, text="VMTs Created: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
+            self.stats_labels['created'] = ttk.Label(left_frame2, text="0", style='StatValue.TLabel')
+            self.stats_labels['created'].grid(row=0, column=1, sticky="e", padx=(5, 0))
+            
+            # Right column
+            right_frame2 = ttk.Frame(self.general_stats_frame)
+            right_frame2.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+            right_frame2.columnconfigure(0, weight=1)
+            right_frame2.columnconfigure(1, weight=1)
+            
+            ttk.Label(right_frame2, text="VMTs Deleted: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
+            self.stats_labels['deleted'] = ttk.Label(right_frame2, text="0", style='StatValue.TLabel')
+            self.stats_labels['deleted'].grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Row 3
             row = 2
-            ttk.Label(self.general_stats_frame, text="C4 Sounds Replaced:", style='StatLabel.TLabel').grid(row=row, column=0, sticky="w", padx=10, pady=5)
-            self.stats_labels['sounds'] = ttk.Label(self.general_stats_frame, text="0", style='StatValue.TLabel')
-            self.stats_labels['sounds'].grid(row=row, column=0, sticky="e", padx=40, pady=5)
             
-            ttk.Label(self.general_stats_frame, text="Success Rate:", style='StatLabel.TLabel').grid(row=row, column=1, sticky="w", padx=10, pady=5)
-            self.stats_labels['rate'] = ttk.Label(self.general_stats_frame, text="0%", style='StatValue.TLabel')
-            self.stats_labels['rate'].grid(row=row, column=1, sticky="e", padx=40, pady=5)
+            # Create a container frame for each stat to ensure proper spacing
+            left_frame3 = ttk.Frame(self.general_stats_frame)
+            left_frame3.grid(row=row, column=0, sticky="ew", padx=10, pady=5)
+            left_frame3.columnconfigure(0, weight=1)
+            left_frame3.columnconfigure(1, weight=1)
+            
+            ttk.Label(left_frame3, text="C4 Sounds Replaced: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
+            self.stats_labels['sounds'] = ttk.Label(left_frame3, text="0", style='StatValue.TLabel')
+            self.stats_labels['sounds'].grid(row=0, column=1, sticky="e", padx=(5, 0))
+            
+            # Right column
+            right_frame3 = ttk.Frame(self.general_stats_frame)
+            right_frame3.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+            right_frame3.columnconfigure(0, weight=1)
+            right_frame3.columnconfigure(1, weight=1)
+            
+            ttk.Label(right_frame3, text="Success Rate: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
+            self.stats_labels['rate'] = ttk.Label(right_frame3, text="0%", style='StatValue.TLabel')
+            self.stats_labels['rate'].grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Row 4
             row = 3
-            ttk.Label(self.general_stats_frame, text="Errors:", style='StatLabel.TLabel').grid(row=row, column=0, sticky="w", padx=10, pady=5)
-            self.stats_labels['errors'] = ttk.Label(self.general_stats_frame, text="0", style='StatValue.TLabel')
-            self.stats_labels['errors'].grid(row=row, column=0, sticky="e", padx=40, pady=5)
             
-            ttk.Label(self.general_stats_frame, text="Processing Time:", style='StatLabel.TLabel').grid(row=row, column=1, sticky="w", padx=10, pady=5)
-            self.stats_labels['time'] = ttk.Label(self.general_stats_frame, text="00:00:00", style='StatValue.TLabel')
-            self.stats_labels['time'].grid(row=row, column=1, sticky="e", padx=40, pady=5)
+            # Create a container frame for each stat to ensure proper spacing
+            left_frame4 = ttk.Frame(self.general_stats_frame)
+            left_frame4.grid(row=row, column=0, sticky="ew", padx=10, pady=5)
+            left_frame4.columnconfigure(0, weight=1)
+            left_frame4.columnconfigure(1, weight=1)
+            
+            ttk.Label(left_frame4, text="Errors: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
+            self.stats_labels['errors'] = ttk.Label(left_frame4, text="0", style='StatValue.TLabel')
+            self.stats_labels['errors'].grid(row=0, column=1, sticky="e", padx=(5, 0))
+            
+            # Right column
+            right_frame4 = ttk.Frame(self.general_stats_frame)
+            right_frame4.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+            right_frame4.columnconfigure(0, weight=1)
+            right_frame4.columnconfigure(1, weight=1)
+            
+            ttk.Label(right_frame4, text="Processing Time: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
+            self.stats_labels['time'] = ttk.Label(right_frame4, text="00:00:00", style='StatValue.TLabel')
+            self.stats_labels['time'].grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Current Phase - spans both columns
             phase_frame = ttk.Frame(self.swep_stats_frame)
             phase_frame.grid(row=4, column=0, columnspan=2, sticky="ew", pady=4, padx=10)
-            ttk.Label(phase_frame, text="Current Phase:").pack(side="left")
+            phase_frame.columnconfigure(0, weight=1)
+            phase_frame.columnconfigure(1, weight=1)
+            ttk.Label(phase_frame, text="Current Phase: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.swep_phase_label = ttk.Label(phase_frame, text="None", style='StatValue.TLabel')
-            self.swep_phase_label.pack(side="left", padx=(5, 0))
+            self.swep_phase_label.grid(row=0, column=1, sticky="w", padx=(5, 0))
 
             # SWEPs Detected
             swep_detected_frame = ttk.Frame(self.swep_stats_frame)
             swep_detected_frame.grid(row=0, column=0, sticky="ew", pady=4, padx=10)
-            ttk.Label(swep_detected_frame, text="SWEPs Detected:").pack(side="left")
+            swep_detected_frame.columnconfigure(0, weight=1)
+            swep_detected_frame.columnconfigure(1, weight=1)
+            ttk.Label(swep_detected_frame, text="SWEPs Detected: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.sweps_detected_label = ttk.Label(swep_detected_frame, text="0", style='StatValue.TLabel')
-            self.sweps_detected_label.pack(side="left", padx=(5, 0))
+            self.sweps_detected_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Lua Files
             lua_files_frame = ttk.Frame(self.swep_stats_frame)
             lua_files_frame.grid(row=1, column=0, sticky="ew", pady=4, padx=10)
-            ttk.Label(lua_files_frame, text="Lua Files:").pack(side="left")
+            lua_files_frame.columnconfigure(0, weight=1)
+            lua_files_frame.columnconfigure(1, weight=1)
+            ttk.Label(lua_files_frame, text="Lua Files: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.lua_files_label = ttk.Label(lua_files_frame, text="0", style='StatValue.TLabel')
-            self.lua_files_label.pack(side="left", padx=(5, 0))
+            self.lua_files_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Cache Files
             lua_cache_frame = ttk.Frame(self.swep_stats_frame)
             lua_cache_frame.grid(row=2, column=0, sticky="ew", pady=4, padx=10)
-            ttk.Label(lua_cache_frame, text="Cache Files:").pack(side="left")
+            lua_cache_frame.columnconfigure(0, weight=1)
+            lua_cache_frame.columnconfigure(1, weight=1)
+            ttk.Label(lua_cache_frame, text="Cache Files: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.lua_cache_label = ttk.Label(lua_cache_frame, text="0", style='StatValue.TLabel')
-            self.lua_cache_label.pack(side="left", padx=(5, 0))
+            self.lua_cache_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Textures Found
             textures_found_frame = ttk.Frame(self.swep_stats_frame)
             textures_found_frame.grid(row=0, column=1, sticky="ew", pady=4, padx=10)
-            ttk.Label(textures_found_frame, text="Textures Found:").pack(side="left")
+            textures_found_frame.columnconfigure(0, weight=1)
+            textures_found_frame.columnconfigure(1, weight=1)
+            ttk.Label(textures_found_frame, text="Textures Found: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.swep_textures_label = ttk.Label(textures_found_frame, text="0", style='StatValue.TLabel')
-            self.swep_textures_label.pack(side="left", padx=(5, 0))
+            self.swep_textures_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Models Found
             models_found_frame = ttk.Frame(self.swep_stats_frame)
             models_found_frame.grid(row=1, column=1, sticky="ew", pady=4, padx=10)
-            ttk.Label(models_found_frame, text="Models Found:").pack(side="left")
+            models_found_frame.columnconfigure(0, weight=1)
+            models_found_frame.columnconfigure(1, weight=1)
+            ttk.Label(models_found_frame, text="Models Found: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.swep_models_label = ttk.Label(models_found_frame, text="0", style='StatValue.TLabel')
-            self.swep_models_label.pack(side="left", padx=(5, 0))
+            self.swep_models_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Addons Scanned
             addons_scanned_frame = ttk.Frame(self.swep_stats_frame)
             addons_scanned_frame.grid(row=3, column=0, sticky="ew", pady=4, padx=10)
-            ttk.Label(addons_scanned_frame, text="Addons Scanned:").pack(side="left")
+            addons_scanned_frame.columnconfigure(0, weight=1)
+            addons_scanned_frame.columnconfigure(1, weight=1)
+            ttk.Label(addons_scanned_frame, text="Addons Scanned: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.addons_label = ttk.Label(addons_scanned_frame, text="0", style='StatValue.TLabel')
-            self.addons_label.pack(side="left", padx=(5, 0))
+            self.addons_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Workshop Items
             workshop_items_frame = ttk.Frame(self.swep_stats_frame)
             workshop_items_frame.grid(row=3, column=1, sticky="ew", pady=4, padx=10)
-            ttk.Label(workshop_items_frame, text="Workshop Items:").pack(side="left")
+            workshop_items_frame.columnconfigure(0, weight=1)
+            workshop_items_frame.columnconfigure(1, weight=1)
+            ttk.Label(workshop_items_frame, text="Workshop Items: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.workshop_label = ttk.Label(workshop_items_frame, text="0", style='StatValue.TLabel')
-            self.workshop_label.pack(side="left", padx=(5, 0))
-            self.swep_phase_label = ttk.Label(phase_frame, text="None", **swep_value_style)
-            self.swep_phase_label.pack(side="left", padx=(5, 0))
+            self.workshop_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
 
             logging.info("GUI components initialized successfully")
             
@@ -612,18 +677,22 @@ class TextureExtractorGUI:
             # SWEP Detector
             swep_module_frame = ttk.Frame(module_status_container)
             swep_module_frame.grid(row=1, column=0, sticky="w", padx=10, pady=2)
+            swep_module_frame.columnconfigure(0, weight=1)
+            swep_module_frame.columnconfigure(1, weight=1)
             
-            ttk.Label(swep_module_frame, text="SWEP Detector:", style='StatLabel.TLabel').pack(side="left")
+            ttk.Label(swep_module_frame, text="SWEP Detector: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.swep_module_status = ttk.Label(swep_module_frame, text="Inactive", foreground="#888888")
-            self.swep_module_status.pack(side="left", padx=(5, 0))
+            self.swep_module_status.grid(row=0, column=1, sticky="w", padx=(5, 0))
             
             # Texture Extractor
             texture_module_frame = ttk.Frame(module_status_container)
             texture_module_frame.grid(row=1, column=1, sticky="w", padx=10, pady=2)
+            texture_module_frame.columnconfigure(0, weight=1)
+            texture_module_frame.columnconfigure(1, weight=1)
             
-            ttk.Label(texture_module_frame, text="Texture Extractor:", style='StatLabel.TLabel').pack(side="left")
+            ttk.Label(texture_module_frame, text="Texture Extractor: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.texture_module_status = ttk.Label(texture_module_frame, text="Inactive", foreground="#888888")
-            self.texture_module_status.pack(side="left", padx=(5, 0))
+            self.texture_module_status.grid(row=0, column=1, sticky="w", padx=(5, 0))
             
             # Module Performance Stats
             module_perf_container = ttk.Frame(self.modules_stats_frame)
@@ -636,34 +705,42 @@ class TextureExtractorGUI:
             # SWEP Detector Performance
             swep_perf_frame = ttk.Frame(module_perf_container)
             swep_perf_frame.grid(row=1, column=0, sticky="w", padx=10, pady=2)
+            swep_perf_frame.columnconfigure(0, weight=1)
+            swep_perf_frame.columnconfigure(1, weight=1)
             
-            ttk.Label(swep_perf_frame, text="SWEP Processing Time:", style='StatLabel.TLabel').pack(side="left")
+            ttk.Label(swep_perf_frame, text="SWEP Processing Time: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.swep_time_label = ttk.Label(swep_perf_frame, text="0:00:00", style='StatValue.TLabel')
-            self.swep_time_label.pack(side="left", padx=(5, 0))
+            self.swep_time_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Texture Extractor Performance
             texture_perf_frame = ttk.Frame(module_perf_container)
             texture_perf_frame.grid(row=1, column=1, sticky="w", padx=10, pady=2)
+            texture_perf_frame.columnconfigure(0, weight=1)
+            texture_perf_frame.columnconfigure(1, weight=1)
             
-            ttk.Label(texture_perf_frame, text="Texture Processing Time:", style='StatLabel.TLabel').pack(side="left")
+            ttk.Label(texture_perf_frame, text="Texture Processing Time: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.texture_time_label = ttk.Label(texture_perf_frame, text="0:00:00", style='StatValue.TLabel')
-            self.texture_time_label.pack(side="left", padx=(5, 0))
+            self.texture_time_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Memory Usage
             memory_frame = ttk.Frame(module_perf_container)
             memory_frame.grid(row=2, column=0, sticky="w", padx=10, pady=2)
+            memory_frame.columnconfigure(0, weight=1)
+            memory_frame.columnconfigure(1, weight=1)
             
-            ttk.Label(memory_frame, text="Memory Usage:", style='StatLabel.TLabel').pack(side="left")
+            ttk.Label(memory_frame, text="Memory Usage: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.memory_usage_label = ttk.Label(memory_frame, text="0 MB", style='StatValue.TLabel')
-            self.memory_usage_label.pack(side="left", padx=(5, 0))
+            self.memory_usage_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # CPU Usage
             cpu_frame = ttk.Frame(module_perf_container)
             cpu_frame.grid(row=2, column=1, sticky="w", padx=10, pady=2)
+            cpu_frame.columnconfigure(0, weight=1)
+            cpu_frame.columnconfigure(1, weight=1)
             
-            ttk.Label(cpu_frame, text="CPU Usage:", style='StatLabel.TLabel').pack(side="left")
+            ttk.Label(cpu_frame, text="CPU Usage: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
             self.cpu_usage_label = ttk.Label(cpu_frame, text="0%", style='StatValue.TLabel')
-            self.cpu_usage_label.pack(side="left", padx=(5, 0))
+            self.cpu_usage_label.grid(row=0, column=1, sticky="e", padx=(5, 0))
             
             # Initialize module-specific timing variables
             self.swep_start_time = None
