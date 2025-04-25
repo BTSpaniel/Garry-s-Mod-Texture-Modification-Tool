@@ -8,19 +8,49 @@ import logging
 import subprocess
 from src.config.config_manager import load_config
 
-# List of required packages with their pip install names
-REQUIRED_PACKAGES = [
-    ('vpk', 'vpk'),  # For VPK file handling
-    ('shutil', None),         # Built-in, for file operations
-    ('pathlib', 'pathlib'),   # For path handling
-    ('struct', None),         # Built-in, for binary data
-    ('mmap', None),           # Built-in, for memory mapping
-    ('winreg', None),         # Built-in, for registry access
-    ('win32security', 'pywin32'),  # For Windows security and admin features
-    ('win32api', 'pywin32'),      # For Windows API access
-    ('win32con', 'pywin32'),      # For Windows constants
-    ('win32com', 'pywin32')       # For COM interface
+# Built-in packages that don't need to be installed
+BUILT_IN_PACKAGES = [
+    'shutil',     # For file operations
+    'struct',     # For binary data
+    'mmap',       # For memory mapping
+    'winreg',     # For registry access
 ]
+
+# Special packages that need different import names than their pip install names
+SPECIAL_PACKAGES = {
+    'pywin32': ['win32security', 'win32api', 'win32con', 'win32com'],
+    'pillow': ['PIL'],
+    'psutil': ['psutil'],
+    'vpk': ['vpk'],
+}
+
+def read_requirements():
+    """Read requirements from requirements.txt file."""
+    requirements = []
+    try:
+        # Get the path to requirements.txt relative to this file
+        import os
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        req_path = os.path.join(base_dir, 'requirements.txt')
+        
+        if os.path.exists(req_path):
+            logging.info(f"Reading requirements from {req_path}")
+            with open(req_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    # Skip comments and empty lines
+                    if line and not line.startswith('#'):
+                        # Remove version specifiers
+                        package = line.split('>=')[0].split('==')[0].split('<')[0].strip()
+                        if package:
+                            requirements.append(package)
+            logging.info(f"Found requirements: {requirements}")
+        else:
+            logging.warning(f"Requirements file not found at {req_path}")
+    except Exception as e:
+        logging.error(f"Error reading requirements.txt: {e}")
+    
+    return requirements
 
 def check_and_install_dependencies():
     """Check and install required packages."""
@@ -28,8 +58,12 @@ def check_and_install_dependencies():
     if config.get("SKIP_DEPENDENCIES", False):
         print("\n[i] Skipping dependency checks as SKIP_DEPENDENCIES is True")
         return True
-        
+    
+    # Read requirements from requirements.txt
+    required_pip_packages = read_requirements()
+    
     print("\n=== Checking Dependencies ===")
+    print(f"Found {len(required_pip_packages)} packages in requirements.txt")
     
     def check_package(package_name):
         try:
@@ -77,21 +111,43 @@ def check_and_install_dependencies():
 
     missing_packages = []
     installed_packages = []
-    critical_packages = ['pywin32', 'vpk']
+    critical_packages = ['pywin32', 'vpk', 'psutil']
 
-    # First check what needs to be installed
-    print("\nChecking installed packages...")
-    for import_name, pip_name in REQUIRED_PACKAGES:
-        if pip_name is None:  # Skip built-in packages
-            print(f"  [+] {import_name} (built-in)")
-            continue
-            
+    # First check built-in packages
+    print("\nChecking built-in packages...")
+    for import_name in BUILT_IN_PACKAGES:
         if check_package(import_name):
-            print(f"  [+] {import_name} already installed")
-            installed_packages.append(import_name)
+            print(f"  [+] {import_name} (built-in)")
         else:
-            print(f"  [-] {import_name} not found")
-            missing_packages.append((import_name, pip_name))
+            print(f"  [-] {import_name} (built-in) not found - this is unusual")
+    
+    # Then check packages from requirements.txt
+    print("\nChecking packages from requirements.txt...")
+    for pip_package in required_pip_packages:
+        # Handle special packages with different import names
+        if pip_package.lower() in SPECIAL_PACKAGES:
+            import_names = SPECIAL_PACKAGES[pip_package.lower()]
+            all_imports_ok = True
+            
+            for import_name in import_names:
+                if not check_package(import_name):
+                    all_imports_ok = False
+                    break
+            
+            if all_imports_ok:
+                print(f"  [+] {pip_package} already installed")
+                installed_packages.append(pip_package)
+            else:
+                print(f"  [-] {pip_package} not found or incomplete")
+                missing_packages.append((import_names[0], pip_package))
+        else:
+            # Regular package where import name matches pip name
+            if check_package(pip_package):
+                print(f"  [+] {pip_package} already installed")
+                installed_packages.append(pip_package)
+            else:
+                print(f"  [-] {pip_package} not found")
+                missing_packages.append((pip_package, pip_package))
 
     # If anything needs installing, try to install it
     if missing_packages:
