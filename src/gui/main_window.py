@@ -397,6 +397,12 @@ class TextureExtractorGUI:
             self.current_phase_label = ttk.Label(phase_frame, text="None", foreground="#FF8C00")
             self.current_phase_label.pack(side="left")
             
+            # Scan task progress display
+            self.scan_task_frame = ttk.Frame(status_frame)
+            self.scan_task_frame.grid(row=1, column=0, sticky="w", pady=(5, 0))
+            self.scan_task_label = ttk.Label(self.scan_task_frame, text="", foreground="#0066CC")
+            self.scan_task_label.pack(side="left")
+            
             # File count display
             file_count_frame = ttk.Frame(status_frame)
             file_count_frame.grid(row=0, column=1, sticky="e")
@@ -990,7 +996,12 @@ class TextureExtractorGUI:
             def task_progress_callback(completed, total):
                 update_files_found.last_task_count = completed
                 update_files_found.total_tasks = total
+                
+                # Update scan task progress in the UI
+                if hasattr(self, 'scan_task_label'):
+                    self.scan_task_label.config(text=f"Completed {completed}/{total} scan tasks")
             
+            # Find VPK files
             self.vpk_files = find_vpk_files(
                 self.game_paths, 
                 gui_callback=update_files_found,
@@ -1002,6 +1013,10 @@ class TextureExtractorGUI:
             self.status_label.config(text=f"Ready to process {len(self.vpk_files)} files")
             self.start_button.config(state="normal")
             
+            # Update scan task display with final count
+            if hasattr(self, 'scan_task_label'):
+                self.scan_task_label.config(text=f"Found {len(self.vpk_files)} VPK files total")
+                
             # Set progress values to indicate preload is complete, but not the whole process
             self.progress_bar["value"] = 25  # Only 25% of the overall process is done after preload
             self.action_progress_bar["value"] = 100
@@ -1149,6 +1164,12 @@ class TextureExtractorGUI:
                         
                         # Update status
                         self.status_label.config(text=f"SWEP Detection: {message}")
+                        
+                        # Update scan task progress display with SWEP detection details
+                        if hasattr(self, 'scan_task_label') and message and 'scan' in message.lower():
+                            # Extract task progress information if available
+                            if '/' in message:
+                                self.scan_task_label.config(text=message)
                         
                         # Update stats from detector
                         stats = swep_detector.get_stats()
