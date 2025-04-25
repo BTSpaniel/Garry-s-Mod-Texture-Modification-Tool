@@ -212,78 +212,105 @@ DEFAULT_CONFIG = {
         "font_size": 10
     },
     
-    # Weapon Colors
+    # Weapon Colors with Enhanced Visibility
     "WEAPON_COLORS": {
         "pistol": {
             "enabled": True,
-            "color": "[1 0 0]",
-            "name": "Red",
+            "color": "[0.8 0.8 1.2]",  # Blue tint
+            "glow": "[0.2 0.2 0.4]",   # Blue glow
+            "name": "Pistols",
             "patterns": [
                 "pistol", "glock", "usp", "deagle", "revolver", "357", "p228", "p250", "magnum", "fiveseven", "elite"
             ]
         },
         "rifle": {
             "enabled": True,
-            "color": "[0 1 0]",
-            "name": "Green",
+            "color": "[1.2 0.8 0.8]",  # Red tint
+            "glow": "[0.4 0.2 0.2]",   # Red glow
+            "name": "Rifles",
             "patterns": [
                 "rifle", "ak47", "m4a1", "famas", "galil", "aug", "sg552", "awp", "scout", "sniper", "assault", "carbine"
             ]
         },
         "smg": {
             "enabled": True,
-            "color": "[0 0 1]",
-            "name": "Blue",
+            "color": "[0.8 1.2 0.8]",  # Green tint
+            "glow": "[0.2 0.4 0.2]",   # Green glow
+            "name": "SMGs",
             "patterns": [
                 "smg", "mp5", "mp7", "mac10", "ump45", "p90", "tmp", "mp5navy"
             ]
         },
         "shotgun": {
             "enabled": True,
-            "color": "[1 0 1]",
-            "name": "Purple",
+            "color": "[1.2 1.2 0.8]",  # Yellow tint
+            "glow": "[0.4 0.4 0.2]",   # Yellow glow
+            "name": "Shotguns",
             "patterns": [
                 "shotgun", "nova", "mag7", "sawedoff", "xm1014", "spas", "pump", "m3", "autoshotgun", "pumpshotgun"
             ]
         },
         "crossbow": {
             "enabled": True,
-            "color": "[1 0.5 0.5]",
-            "name": "Pink",
+            "color": "[1.2 0.8 1.2]",  # Purple tint
+            "glow": "[0.4 0.2 0.4]",   # Purple glow
+            "name": "Crossbows",
             "patterns": [
                 "crossbow", "bow", "arrow"
             ]
         },
         "explosive": {
             "enabled": True,
-            "color": "[1 0.5 0]",
-            "name": "Orange",
+            "color": "[1.4 0.7 0.3]",  # Orange tint
+            "glow": "[0.5 0.3 0.1]",   # Orange glow
+            "name": "Explosives",
             "patterns": [
                 "grenade", "explosive", "c4", "rpg", "missile", "bomb", "mine", "dynamite", "tnt", "frag", "slam"
             ]
         },
         "medical": {
             "enabled": True,
-            "color": "[0 1 1]",
-            "name": "Cyan",
+            "color": "[0.8 1.2 1.2]",  # Cyan tint
+            "glow": "[0.2 0.4 0.4]",   # Cyan glow
+            "name": "Medical",
             "patterns": [
                 "medkit", "defibrillator", "health", "heal", "bandage", "first_aid", "pain_pills", "adrenaline"
             ]
         },
         "utility": {
             "enabled": True,
-            "color": "[1 1 0]",
-            "name": "Yellow",
+            "color": "[1.2 1.2 1.2]",  # White/bright
+            "glow": "[0.3 0.3 0.3]",   # White glow
+            "name": "Utility",
             "patterns": [
                 "tool", "camera", "keys", "lockpick", "keypad", "atm", "card", "checker", "pocket"
             ]
         },
         "special": {
             "enabled": True,
-            "color": "[0 1 1]",
-            "name": "Cyan",
+            "color": "[0.7 0.7 1.4]",  # Light blue tint
+            "glow": "[0.2 0.2 0.5]",   # Light blue glow
+            "name": "Special Weapons",
             "patterns": [
-                "gravity", "physcannon", "physgun", "toolgun", "tool", "stunstick", "stun", "taser", "crowbar", "bat"
+                "physgun", "gravity", "physcannon", "portal", "teleport", "stunstick"
+            ]
+        },
+        "melee": {
+            "enabled": True,
+            "color": "[1.0 0.7 0.7]",  # Light red tint
+            "glow": "[0.4 0.2 0.2]",   # Light red glow
+            "name": "Melee Weapons",
+            "patterns": [
+                "knife", "sword", "axe", "crowbar", "bat", "club", "hammer", "wrench", "melee", "baton"
+            ]
+        },
+        "ttt": {
+            "enabled": True,
+            "color": "[1.5 0.8 1.5]",  # Bright purple tint
+            "glow": "[0.5 0.2 0.5]",   # Purple glow
+            "name": "TTT Weapons",
+            "patterns": [
+                "ttt_", "terrortown", "traitor", "detective", "innocent", "dna_scanner", "silenced", "newton"
             ]
         }
     },

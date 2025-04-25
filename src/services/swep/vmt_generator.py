@@ -49,17 +49,21 @@ class VMTGenerator:
             ]
             is_weapon = any(pattern in path_lower for pattern in weapon_patterns)
     
-            # If it's a weapon, apply coloring without transparency
+            # If it's a weapon, apply enhanced visibility and category-based coloring
             if is_weapon:
                 # Determine weapon category for coloring
-                color = '[1 1 1]'  # Default white
+                color = '[1.2 1.2 1.2]'  # Default: slightly brighter than normal
+                glow = '[0.3 0.3 0.3]'    # Default: subtle glow
+                
                 for category, config in self.weapon_colors.items():
                     if config.get('enabled', False):  # Only check enabled categories
                         if any(pattern.lower() in path_lower for pattern in config.get('patterns', [])):
-                            color = config.get('color', '[1 1 1]')
-                            logging.debug(f"Applied {config.get('name', 'Unknown')} color {color} to {base_path}")
+                            color = config.get('color', '[1.2 1.2 1.2]')
+                            glow = config.get('glow', '[0.3 0.3 0.3]')
+                            logging.debug(f"Applied {config.get('name', 'Unknown')} color {color} and glow {glow} to {base_path}")
                             break
     
+                # Enhanced weapon VMT with glow and improved visibility
                 return (f'''"UnlitGeneric"
 {{
     "$basetexture"    "{base_path}"
@@ -68,6 +72,8 @@ class VMTGenerator:
     "$vertexalpha"    1
     "$nolod"        "1"
     "$color2"    "{color}"
+    "$selfillum"      1
+    "$selfillumtint"  "{glow}"
 }}''', 'weapon')
     
             # Check if it's a prop texture
