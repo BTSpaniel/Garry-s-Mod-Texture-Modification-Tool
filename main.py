@@ -29,7 +29,7 @@ def check_for_updates(config):
         
         # Check for updates in a background thread
         def update_thread():
-            update_available, latest_version, release_notes = update_service.check_for_updates()
+            update_available, latest_version, release_notes = update_service.check_for_updates(force_check=True)
             
             if update_available:
                 # Ask user if they want to update

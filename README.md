@@ -82,6 +82,15 @@ The application includes an automatic update system that checks for new versions
 
 ## Version History
 
+### v1.3.6 (2025-04-25)
+- Completely overhauled the update system for improved reliability
+- Added direct ZIP file version verification for more accurate update detection
+- Improved file integrity checking during updates
+- Enhanced error handling for file locks during the update process
+- Added post-update completion system to handle locked files
+- Improved Windows restart mechanism for smoother updates
+- Fixed issues with GitHub version detection
+
 ### v1.3.5 (2025-04-24)
 - Added detailed module statistics tracking in a new "Modules" tab
 - Added real-time performance metrics for SWEP detection and texture extraction

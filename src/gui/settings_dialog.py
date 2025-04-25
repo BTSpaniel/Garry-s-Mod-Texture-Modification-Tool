@@ -183,8 +183,9 @@ class SettingsDialog:
         # Function to run in thread
         def check_updates_thread():
             try:
-                # Check for updates
-                update_available, latest_version, release_notes = update_service.check_for_updates()
+                # Check for updates with force_check=True to bypass cache and time interval
+                # Also use force_update=True to force an update even if the version numbers match
+                update_available, latest_version, release_notes = update_service.check_for_updates(force_check=True, force_update=True)
                 
                 if update_available:
                     # Show update available message
