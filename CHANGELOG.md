@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.6] - 2025-04-25
+
+### Added
+- Enhanced SWEP weapon VMT generation with category-based coloring and glow
+- Improved real-time scan task display showing task completion and VPK discovery
+- Centralized status information in the progress bar section
+- Dependency management with automatic package installation from requirements.txt
+- Improved memory and CPU usage monitoring with per-core percentage display
+
+### Fixed
+- Fixed module settings not being properly saved and applied
+- Fixed deletion settings not being correctly saved
+- Removed redundant UI elements for cleaner interface
+- Improved error handling in system monitoring
+
 ## [1.3.5] - 2025-04-24
 
 ### Added

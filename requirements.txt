@@ -1,0 +1,21 @@
+# Core dependencies
+# tkinter is part of the standard library in most Python installations
+# but listed here for documentation purposes
+tkinter
+pillow>=9.0.0
+
+# System monitoring
+psutil>=5.9.0
+
+# VPK handling
+vpk>=1.4.0
+
+# Windows-specific dependencies
+pywin32>=300
+
+# Compression libraries
+# Note: zlib and lzma are part of the standard library
+
+# Other dependencies
+urllib3>=1.26.0  # For update service
+zipfile>=3.0.0   # For backup and update services

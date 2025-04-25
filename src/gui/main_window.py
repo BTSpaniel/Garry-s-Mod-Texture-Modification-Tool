@@ -863,19 +863,54 @@ class TextureExtractorGUI:
                 seconds = int(texture_elapsed % 60)
                 self.texture_time_label.config(text=f"{hours:02d}:{minutes:02d}:{seconds:02d}")
                 
-            # Update memory and CPU usage (if available)
+            # Update memory and CPU usage
             try:
-                import psutil
-                process = psutil.Process()
-                memory_info = process.memory_info()
-                memory_mb = memory_info.rss / (1024 * 1024)
-                self.memory_usage_label.config(text=f"{memory_mb:.1f} MB")
+                # Import psutil only once at the beginning of the application
+                if not hasattr(self, 'psutil_available'):
+                    try:
+                        import psutil
+                        self.psutil = psutil
+                        self.psutil_available = True
+                        self.psutil_process = psutil.Process()
+                        logging.info("psutil is available for system monitoring")
+                    except ImportError:
+                        self.psutil_available = False
+                        logging.warning("psutil is not available, system monitoring will be disabled")
+                        # Update labels to indicate monitoring is unavailable
+                        self.memory_usage_label.config(text="N/A")
+                        self.cpu_usage_label.config(text="N/A")
                 
-                cpu_percent = process.cpu_percent(interval=0.1)
-                self.cpu_usage_label.config(text=f"{cpu_percent:.1f}%")
-            except (ImportError, Exception) as e:
-                # psutil might not be available, or other errors might occur
-                pass
+                # Only try to get metrics if psutil is available
+                if hasattr(self, 'psutil_available') and self.psutil_available:
+                    # Get memory usage
+                    memory_info = self.psutil_process.memory_info()
+                    memory_mb = memory_info.rss / (1024 * 1024)
+                    self.memory_usage_label.config(text=f"{memory_mb:.1f} MB")
+                    
+                    # Get CPU usage - don't use interval here as it blocks the UI
+                    # Instead, just get the current value which is based on previous measurements
+                    cpu_percent = self.psutil_process.cpu_percent(interval=None)
+                    
+                    # Get the number of logical CPUs to calculate per-core percentage
+                    if not hasattr(self, 'cpu_count'):
+                        self.cpu_count = self.psutil.cpu_count(logical=True)
+                        logging.info(f"Detected {self.cpu_count} logical CPU cores")
+                    
+                    # Calculate per-core percentage (will be >100% if using multiple cores)
+                    raw_percent = cpu_percent
+                    
+                    # Calculate normalized percentage (0-100% range)
+                    if self.cpu_count > 0:
+                        normalized_percent = min(100, cpu_percent / self.cpu_count)
+                    else:
+                        normalized_percent = cpu_percent
+                    
+                    # Display both raw and normalized percentages
+                    self.cpu_usage_label.config(text=f"{normalized_percent:.1f}% ({raw_percent:.1f}% total)")
+            except Exception as e:
+                logging.error(f"Error updating system metrics: {e}")
+                self.memory_usage_label.config(text="Error")
+                self.cpu_usage_label.config(text="Error")
             
         except Exception as e:
             logging.error(f"Error updating stats: {e}")

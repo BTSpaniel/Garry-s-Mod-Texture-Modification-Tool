@@ -1,4 +1,4 @@
-# Texture Extractor v1.3.5
+# Texture Extractor v1.3.6
 
 A tool to extract and modify Garry's Mod textures.
 
@@ -12,7 +12,10 @@ A tool to extract and modify Garry's Mod textures.
 - Decodes Lua cache files (.lc) and Garry's Mod cache files using LZMA decompression
 - Generates VMT files for extracted textures
 - Supports custom output paths
-- Modern GUI with progress tracking
+- Modern GUI with progress tracking and real-time scan task display
+- Enhanced SWEP weapon VMT generation with category-based coloring and glow
+- Improved memory and CPU usage monitoring
+- Dependency management with automatic package installation
 - Includes standalone tools for Lua cache decompression
 - Automatic updates from GitHub repository
 
@@ -21,6 +24,11 @@ A tool to extract and modify Garry's Mod textures.
 - Windows operating system
 - Python 3.8 or higher
 - Source Engine game installation (e.g., Garry's Mod)
+- Required Python packages (automatically installed):
+  - pillow: Image processing
+  - psutil: System monitoring
+  - vpk: VPK file handling
+  - pywin32: Windows API access
 
 ## Installation
 
