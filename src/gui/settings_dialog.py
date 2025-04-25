@@ -899,11 +899,11 @@ class SettingsDialog:
             logging.info(f"Saving SWEP detector setting: {swep_detector_enabled}")
             logging.info(f"Saving Texture extractor setting: {texture_extractor_enabled}")
             
-            # Update the config
-            module_config.update({
+            # Create a new module config to ensure clean state
+            module_config = {
                 'swep_detector': swep_detector_enabled,
                 'texture_extractor': texture_extractor_enabled
-            })
+            }
             
             # Save to config
             self.config["MODULES"] = module_config
@@ -919,13 +919,23 @@ class SettingsDialog:
             })
             self.config["UPDATE"] = update_config
             
-            # Save all settings to file
-            save_config(self.config)
-            save_settings_to_file()
+            # Force a deep copy of the config to ensure all changes are saved
+            import copy
+            config_to_save = copy.deepcopy(self.config)
             
-            # Close dialog using our method to ensure cleanup
-            self._on_dialog_close()
-            messagebox.showinfo("Settings", "Settings saved successfully!")
+            # Save all settings to file
+            success = save_config(config_to_save)
+            if success:
+                save_settings_to_file()
+                
+                # Log the final config for debugging
+                logging.info(f"Final module config saved: {config_to_save.get('MODULES', {})}")
+                
+                # Close dialog using our method to ensure cleanup
+                self._on_dialog_close()
+                messagebox.showinfo("Settings", "Settings saved successfully!")
+            else:
+                messagebox.showerror("Error", "Failed to save settings to file.")
             
         except Exception as e:
             logging.error(f"Error saving settings: {e}")
