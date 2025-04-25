@@ -18,7 +18,7 @@ from src.controllers.admin_controller import check_admin, request_admin, elevate
 from src.controllers.dependency_controller import check_and_install_dependencies
 from src.services.update_service import UpdateService
 
-VERSION = "1.3.6"
+VERSION = "1.3.7"
 APP_NAME = "Source Engine Asset Manager"
 
 def check_for_updates(config):
@@ -32,11 +32,20 @@ def check_for_updates(config):
             update_available, latest_version, release_notes = update_service.check_for_updates(force_check=True)
             
             if update_available:
+                # Format the version for display
+                display_version = latest_version
+                # If the version is part of a longer string, try to extract and format it properly
+                if len(display_version) > 0 and (not display_version[0].isdigit() or not display_version[-1].isdigit()):
+                    import re
+                    version_match = re.search(r'(\d+)[\.-]?(\d+)[\.-]?(\d+)', display_version)
+                    if version_match:
+                        display_version = f"{version_match.group(1)}.{version_match.group(2)}.{version_match.group(3)}"
+        
                 # Ask user if they want to update
                 root = tk.Tk()
                 root.withdraw()  # Hide the root window
                 
-                message = f"A new version ({latest_version}) is available!\n\nRelease Notes:\n{release_notes[:300]}..."
+                message = f"A new version ({display_version}) is available!\n\nRelease Notes:\n{release_notes[:300]}..."
                 if release_notes and len(release_notes) > 300:
                     message += "\n\n(See full release notes on GitHub)"
                     

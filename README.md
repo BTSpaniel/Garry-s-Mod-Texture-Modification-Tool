@@ -1,4 +1,4 @@
-# Texture Extractor v1.3.6
+# Texture Extractor v1.3.7
 
 A tool to extract and modify Garry's Mod textures.
 
@@ -82,6 +82,12 @@ The application includes an automatic update system that checks for new versions
 
 ## Version History
 
+### v1.3.7 (2025-04-25)
+- Fixed version number display in update notifications
+- Improved version number extraction from GitHub releases
+- Enhanced batch file with better directory handling
+- Added additional error handling for update process
+
 ### v1.3.6 (2025-04-25)
 - Completely overhauled the update system for improved reliability
 - Added direct ZIP file version verification for more accurate update detection
@@ -90,6 +96,9 @@ The application includes an automatic update system that checks for new versions
 - Added post-update completion system to handle locked files
 - Improved Windows restart mechanism for smoother updates
 - Fixed issues with GitHub version detection
+- Added robust version number extraction from various formats
+- Fixed batch file to properly handle application directory
+- Improved update notification formatting
 
 ### v1.3.5 (2025-04-24)
 - Added detailed module statistics tracking in a new "Modules" tab
