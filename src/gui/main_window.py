@@ -609,14 +609,7 @@ class TextureExtractorGUI:
             self.stats_labels['time'] = ttk.Label(right_frame4, text="00:00:00", style='StatValue.TLabel')
             self.stats_labels['time'].grid(row=0, column=1, sticky="e", padx=(5, 0))
             
-            # Current Phase - spans both columns
-            phase_frame = ttk.Frame(self.swep_stats_frame)
-            phase_frame.grid(row=4, column=0, columnspan=2, sticky="ew", pady=4, padx=10)
-            phase_frame.columnconfigure(0, weight=1)
-            phase_frame.columnconfigure(1, weight=1)
-            ttk.Label(phase_frame, text="Current Phase: ", style='StatLabel.TLabel').grid(row=0, column=0, sticky="w")
-            self.swep_phase_label = ttk.Label(phase_frame, text="None", style='StatValue.TLabel')
-            self.swep_phase_label.grid(row=0, column=1, sticky="w", padx=(5, 0))
+            # Current Phase removed - now displayed in progress bar section
 
             # SWEPs Detected
             swep_detected_frame = ttk.Frame(self.swep_stats_frame)
@@ -825,8 +818,7 @@ class TextureExtractorGUI:
             if hasattr(self, 'workshop_items_scanned') and self.workshop_items_scanned > 0:
                 self.workshop_label.config(text=f"{self.workshop_items_scanned:,}")
             if hasattr(self, 'current_swep_phase') and self.current_swep_phase:
-                # Update both the SWEP stats phase label and the main progress bar phase label
-                self.swep_phase_label.config(text=f"{self.current_swep_phase}")
+                # Update only the progress bar phase label
                 self.current_phase_label.config(text=f"{self.current_swep_phase}")
             
             # No need to update summary labels as they're now part of the stats_labels
