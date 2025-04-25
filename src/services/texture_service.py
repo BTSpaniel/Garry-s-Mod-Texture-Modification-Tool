@@ -22,7 +22,10 @@ class TextureService:
         self.prop_shader = config.get("PROP_SHADER", {})
         self.skip_patterns = config.get("SKIP_PATTERNS", {})
         self.weapon_colors = config.get("WEAPON_COLORS", {})
-        self.delete_patterns = config.get("DELETE_PATTERNS", {})
+        
+        # Use DELETION config key to match the settings dialog
+        self.delete_patterns = config.get("DELETION", {})
+        logging.debug(f"TextureService initialized with deletion settings: {self.delete_patterns}")
     
     def create_vmt_content(self, vtf_path: str):
         """Create VMT content for a VTF texture."""

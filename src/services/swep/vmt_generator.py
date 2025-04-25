@@ -21,7 +21,9 @@ class VMTGenerator:
         self.prop_shader = self.config.get("PROP_SHADER", {})
         self.skip_patterns = self.config.get("SKIP_PATTERNS", {})
         self.weapon_colors = self.config.get("WEAPON_COLORS", {})
-        self.delete_patterns = self.config.get("DELETE_PATTERNS", {})
+        # Use DELETION config key to match the settings dialog
+        self.delete_patterns = self.config.get("DELETION", {})
+        logging.debug(f"VMTGenerator initialized with deletion settings: {self.delete_patterns}")
     
     def create_vmt_content(self, vtf_path: str) -> Tuple[str, str]:
         """

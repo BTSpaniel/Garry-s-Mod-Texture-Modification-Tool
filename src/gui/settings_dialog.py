@@ -852,22 +852,38 @@ class SettingsDialog:
             self.config["PROP_SHADER"] = prop_shader
             
             # Update deletion settings
-            deletion = self.config.get("DELETION", {})
+            # Create a fresh deletion config to ensure clean state
+            deletion = {
+                'enabled': self.deletion_enabled_var.get(),
+                'patterns': [],
+                'categories': {}
+            }
+            
             # Get non-empty patterns
             patterns = [var.get() for var in self.deletion_patterns_vars if var.get().strip()]
+            deletion['patterns'] = patterns
             
-            # Get category settings
-            categories = deletion.get("categories", {})
+            # Create a new categories dictionary with current UI values
+            categories = {}
             for category, data in self.deletion_categories.items():
-                if category in categories:
-                    categories[category]['enabled'] = data['enabled'].get()
+                # Get the patterns from the original config if available
+                original_patterns = self.config.get("DELETION", {}).get("categories", {}).get(category, {}).get("patterns", [])
+                
+                # Create a new entry for this category
+                categories[category] = {
+                    'enabled': data['enabled'].get(),
+                    'patterns': original_patterns
+                }
+                
+                # Log the category settings being saved
+                logging.info(f"Saving deletion category '{category}': enabled={data['enabled'].get()}")
             
-            deletion.update({
-                'enabled': self.deletion_enabled_var.get(),
-                'patterns': patterns,
-                'categories': categories
-            })
+            # Set the categories in the deletion config
+            deletion['categories'] = categories
+            
+            # Save to config
             self.config["DELETION"] = deletion
+            logging.info(f"Updated deletion config: enabled={deletion['enabled']}, categories={len(categories)}")
             
             # Update performance settings
             performance = self.config.get("PERFORMANCE", {})
