@@ -384,8 +384,27 @@ class TextureExtractorGUI:
             progress_frame.grid(row=3, column=0, columnspan=2, pady=(0, 20), sticky="ew", padx=15)
             progress_frame.grid_columnconfigure(0, weight=1)
             
+            # Status information row
+            status_frame = ttk.Frame(progress_frame)
+            status_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 10))
+            status_frame.grid_columnconfigure(0, weight=1)
+            status_frame.grid_columnconfigure(1, weight=1)
+            
+            # Current phase display
+            phase_frame = ttk.Frame(status_frame)
+            phase_frame.grid(row=0, column=0, sticky="w")
+            ttk.Label(phase_frame, text="Current Phase: ", style='StatLabel.TLabel').pack(side="left")
+            self.current_phase_label = ttk.Label(phase_frame, text="None", foreground="#FF8C00")
+            self.current_phase_label.pack(side="left")
+            
+            # File count display
+            file_count_frame = ttk.Frame(status_frame)
+            file_count_frame.grid(row=0, column=1, sticky="e")
+            self.file_count_label = ttk.Label(file_count_frame, text="Ready to process 0 files", foreground="#006400")
+            self.file_count_label.pack(side="right")
+            
             # Overall progress label with improved styling
-            ttk.Label(progress_frame, text="Overall Progress:").grid(row=0, column=0, sticky="w", pady=(0, 3))
+            ttk.Label(progress_frame, text="Overall Progress:").grid(row=1, column=0, sticky="w", pady=(0, 3))
             
             # Main progress bar (overall progress) with enhanced styling
             self.progress_bar = ttk.Progressbar(
@@ -394,10 +413,10 @@ class TextureExtractorGUI:
                 mode="determinate", 
                 length=800
             )
-            self.progress_bar.grid(row=1, column=0, sticky="ew", pady=(0, 15))
+            self.progress_bar.grid(row=2, column=0, sticky="ew", pady=(0, 15))
             
             # Current action label with improved styling
-            ttk.Label(progress_frame, text="Current Action:").grid(row=2, column=0, sticky="w", pady=(0, 3))
+            ttk.Label(progress_frame, text="Current Action:").grid(row=3, column=0, sticky="w", pady=(0, 3))
             
             # Action progress bar (current task progress) with enhanced styling
             self.action_progress_bar = ttk.Progressbar(
@@ -406,14 +425,14 @@ class TextureExtractorGUI:
                 mode="determinate", 
                 length=800
             )
-            self.action_progress_bar.grid(row=3, column=0, sticky="ew")
+            self.action_progress_bar.grid(row=4, column=0, sticky="ew")
             
             # Add percentage labels next to progress bars
             self.overall_percent_label = ttk.Label(progress_frame, text="0%", style='StatValue.TLabel')
-            self.overall_percent_label.grid(row=1, column=1, padx=(5, 0))
+            self.overall_percent_label.grid(row=2, column=1, padx=(5, 0))
             
             self.action_percent_label = ttk.Label(progress_frame, text="0%", style='StatValue.TLabel')
-            self.action_percent_label.grid(row=3, column=1, padx=(5, 0))
+            self.action_percent_label.grid(row=4, column=1, padx=(5, 0))
 
             # Stats frame with enhanced styling and shadow effect
             self.stats_frame = ttk.LabelFrame(
@@ -757,6 +776,9 @@ class TextureExtractorGUI:
             # Update file counts with formatting for better readability
             self.stats_labels['found'].config(text=f"{self.files_found:,}")
             self.stats_labels['files'].config(text=f"{self.processed_files:,}")
+            
+            # Update file count in progress bar section
+            self.file_count_label.config(text=f"Processing {self.processed_files:,} of {self.total_files:,} files")
             self.stats_labels['vmts'].config(text=f"{self.vmt_files_created:,}")
             self.stats_labels['deleted'].config(text=f"{self.vmt_files_deleted:,}")  # Add deletion counter
             self.stats_labels['c4_sounds'].config(text=f"{self.c4_sounds_replaced:,}")  # Add C4 sounds counter
@@ -797,7 +819,9 @@ class TextureExtractorGUI:
             if hasattr(self, 'workshop_items_scanned') and self.workshop_items_scanned > 0:
                 self.workshop_label.config(text=f"{self.workshop_items_scanned:,}")
             if hasattr(self, 'current_swep_phase') and self.current_swep_phase:
+                # Update both the SWEP stats phase label and the main progress bar phase label
                 self.swep_phase_label.config(text=f"{self.current_swep_phase}")
+                self.current_phase_label.config(text=f"{self.current_swep_phase}")
             
             # No need to update summary labels as they're now part of the stats_labels
             
@@ -1032,6 +1056,10 @@ class TextureExtractorGUI:
             
         modules_text = ", ".join(active_modules)
         self.status_label.config(text=f"Starting processing with active modules: {modules_text}")
+        
+        # Update file count and phase in the progress bar section
+        self.file_count_label.config(text=f"Ready to process {self.total_files:,} files")
+        self.current_phase_label.config(text="Initializing")
         self.window.update_idletasks()
         
         # Start processing in a separate thread
