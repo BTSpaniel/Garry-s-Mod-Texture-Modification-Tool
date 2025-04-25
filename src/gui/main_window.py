@@ -1121,10 +1121,17 @@ class TextureExtractorGUI:
             
             # Process SWEP detection if both the module and feature are enabled
             module_config = self.config.get("MODULES", {})
-            swep_detector_enabled = module_config.get("swep_detector", True)
+            
+            # Force reload module config to ensure we have the latest settings
+            logging.info(f"Raw module config from config file: {module_config}")
+            
+            # Explicitly check if the key exists and is False, otherwise default to True
+            swep_detector_enabled = True
+            if "swep_detector" in module_config and module_config["swep_detector"] is False:
+                swep_detector_enabled = False
             
             # Add debug logging to see the actual value
-            logging.info(f"SWEP Detector module enabled: {swep_detector_enabled}")
+            logging.info(f"SWEP Detector module enabled (after check): {swep_detector_enabled}")
             logging.info(f"Module config: {module_config}")
             
             # Only run SWEP detection if the module is explicitly enabled
@@ -1208,10 +1215,13 @@ class TextureExtractorGUI:
                     logging.warning("Garry's Mod path not found, skipping SWEP detection")
             
             # Check if texture extractor module is enabled
-            texture_extractor_enabled = module_config.get("texture_extractor", True)
+            # Explicitly check if the key exists and is False, otherwise default to True
+            texture_extractor_enabled = True
+            if "texture_extractor" in module_config and module_config["texture_extractor"] is False:
+                texture_extractor_enabled = False
             
             # Add debug logging for texture extractor module
-            logging.info(f"Texture Extractor module enabled: {texture_extractor_enabled}")
+            logging.info(f"Texture Extractor module enabled (after check): {texture_extractor_enabled}")
             
             # Process each VPK chunk if texture extractor is enabled
             if texture_extractor_enabled:
