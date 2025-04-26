@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.10] - 2025-04-26
+
+### Fixed
+- Fixed SWEP detector by adding missing decode_file method to LuaCacheDecoder
+- Fixed workshop file processing in SWEP detector
+- Improved error handling for GMA file extraction
+
 ## [1.3.9] - 2025-04-26
 
 ### Fixed
