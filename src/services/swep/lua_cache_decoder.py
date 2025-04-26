@@ -380,6 +380,39 @@ class LuaCacheDecoder:
             strings = string_pattern.findall(binary_data)
             return '\n'.join(s.decode('utf-8', errors='ignore') for s in strings)
     
+    def decode_file(self, file_path: Path) -> str:
+        """
+        Decode a file (workshop GMA file or Lua cache file).
+        
+        Args:
+            file_path: Path to the file to decode
+            
+        Returns:
+            Decoded content as string, or empty string if decoding failed
+        """
+        # Check if this is a Lua cache file
+        if str(file_path).endswith('.lua.cache') or str(file_path).endswith('.lc'):
+            return self.decode_lc_file(file_path)
+        
+        # For workshop GMA files, just extract readable strings
+        if str(file_path).endswith('.gma'):
+            try:
+                debug_print(f"Extracting readable strings from GMA file: {file_path}")
+                with open(file_path, 'rb') as f:
+                    binary_data = f.read()
+                return self._extract_strings_from_binary(binary_data)
+            except Exception as e:
+                debug_print(f"Failed to extract strings from GMA file: {e}")
+                return ""
+        
+        # For regular files, just read them
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                return f.read()
+        except Exception as e:
+            debug_print(f"Failed to read file: {e}")
+            return ""
+    
     def extract_swep_info(self, decoded_content: str) -> Dict:
         """
         Extract SWEP information from decoded Lua content.
