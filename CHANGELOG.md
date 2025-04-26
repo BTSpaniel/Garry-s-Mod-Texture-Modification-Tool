@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.9] - 2025-04-26
+
+### Fixed
+- Fixed update service incorrectly detecting new versions when none are available
+- Improved version comparison logic to prevent false update notifications
+- Updated fallback version handling to use current version instead of hardcoded value
+
 ## [1.3.8] - 2025-04-26
 
 ### Added

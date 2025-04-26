@@ -185,9 +185,9 @@ class UpdateService:
                                 if version_match:
                                     latest_version = version_match.group(1)
                                 else:
-                                    # Fallback to hardcoded version
-                                    latest_version = "1.3.6"
-                                    logging.warning(f"Could not extract version from any source, using hardcoded version: {latest_version}")
+                                    # Fallback to current version to prevent false update notifications
+                                    latest_version = self.current_version
+                                    logging.warning(f"Could not extract version from any source, using current version: {latest_version}")
             
             # Save the zip file for later use if we need to apply the update
             if not self.temp_dir:
