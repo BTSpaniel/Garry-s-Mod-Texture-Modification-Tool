@@ -161,20 +161,33 @@ class UpdateService:
                 if version_match:
                     latest_version = version_match.group(1)
                 else:
-                    # Try release name
-                    release_name = release_data.get("name", "")
-                    version_match = re.search(r'v?(\d+\.\d+\.\d+)', release_name)
+                    # Look for numbers in the tag name
+                    version_match = re.search(r'(\d+)[\.-]?(\d+)[\.-]?(\d+)', tag_name)
                     if version_match:
-                        latest_version = version_match.group(1)
+                        # Format as proper version number
+                        latest_version = f"{version_match.group(1)}.{version_match.group(2)}.{version_match.group(3)}"
+                        logging.info(f"Extracted version from tag numbers: {latest_version}")
                     else:
-                        # Try release body
-                        version_match = re.search(r'[vV]ersion\s*:?\s*v?(\d+\.\d+\.\d+)', release_notes)
+                        # Try release name
+                        release_name = release_data.get("name", "")
+                        version_match = re.search(r'v?(\d+\.\d+\.\d+)', release_name)
                         if version_match:
                             latest_version = version_match.group(1)
                         else:
-                            # Fallback to hardcoded version
-                            latest_version = "1.3.6"
-                            logging.warning(f"Could not extract version from any source, using hardcoded version: {latest_version}")
+                            # Try to extract numbers from release name
+                            version_match = re.search(r'(\d+)[\.-]?(\d+)[\.-]?(\d+)', release_name)
+                            if version_match:
+                                latest_version = f"{version_match.group(1)}.{version_match.group(2)}.{version_match.group(3)}"
+                                logging.info(f"Extracted version from release name numbers: {latest_version}")
+                            else:
+                                # Try release body
+                                version_match = re.search(r'[vV]ersion\s*:?\s*v?(\d+\.\d+\.\d+)', release_notes)
+                                if version_match:
+                                    latest_version = version_match.group(1)
+                                else:
+                                    # Fallback to hardcoded version
+                                    latest_version = "1.3.6"
+                                    logging.warning(f"Could not extract version from any source, using hardcoded version: {latest_version}")
             
             # Save the zip file for later use if we need to apply the update
             if not self.temp_dir:
@@ -842,12 +855,13 @@ class UpdateService:
                 
                 with open(restart_script, 'w') as f:
                     f.write(f"@echo off\n")
+                    f.write(f"cd /d \"{os.path.dirname(script)}\"\n")  # Change to the script directory
                     f.write(f"timeout /t 1 /nobreak > nul\n")  # Wait 1 second
-                    f.write(f"start "" \"{python}\" \"{script}\"\n")
+                    f.write(f"start "" \"{python}\" \"{os.path.basename(script)}\"\n")
                 
                 # Execute the batch file and exit current process
                 logging.info(f"Executing restart script: {restart_script}")
-                subprocess.Popen([restart_script], shell=True)
+                subprocess.Popen([str(restart_script)], shell=True)
                 sys.exit(0)
             else:
                 # On other platforms, use execl

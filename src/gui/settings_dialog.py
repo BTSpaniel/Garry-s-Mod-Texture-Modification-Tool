@@ -188,12 +188,21 @@ class SettingsDialog:
                 update_available, latest_version, release_notes = update_service.check_for_updates(force_check=True, force_update=True)
                 
                 if update_available:
+                    # Format the version for display
+                    display_version = latest_version
+                    # If the version is part of a longer string, try to extract and format it properly
+                    if not display_version[0].isdigit() or not display_version[-1].isdigit():
+                        import re
+                        version_match = re.search(r'(\d+)[\.-]?(\d+)[\.-]?(\d+)', display_version)
+                        if version_match:
+                            display_version = f"{version_match.group(1)}.{version_match.group(2)}.{version_match.group(3)}"
+                    
                     # Show update available message
                     self.update_status_var.set(f"Update available: v{latest_version}")
                     
                     # Ask if user wants to update now
                     if messagebox.askyesno("Update Available", 
-                                          f"A new version ({latest_version}) is available!\n\n" +
+                                          f"A new version ({display_version}) is available!\n\n" +
                                           f"Release Notes:\n{release_notes[:300]}...\n\n" +
                                           "Do you want to update now?"):
                         

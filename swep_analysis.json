@@ -1,0 +1,343 @@
+{
+  "sweps": {
+    "weapon_fists": {
+      "name": "#weapon_fists",
+      "class": "weapon_fists",
+      "base": "weapon_base",
+      "category": "",
+      "gamemode": "Sandbox",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\lua\\weapons\\weapon_fists.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_medkit": {
+      "name": "#weapon_medkit",
+      "class": "weapon_medkit",
+      "base": "weapon_base",
+      "category": "",
+      "gamemode": "Sandbox",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\lua\\weapons\\weapon_medkit.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_flechettegun": {
+      "name": "#weapon_flechettegun",
+      "class": "weapon_flechettegun",
+      "base": "weapon_base",
+      "category": "",
+      "gamemode": "Sandbox",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\lua\\weapons\\weapon_flechettegun.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_confgrenade": {
+      "name": "confgrenade_name",
+      "class": "weapon_ttt_confgrenade",
+      "base": "weapon_tttbasegrenade",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_confgrenade.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_knife": {
+      "name": "knife_name",
+      "class": "weapon_ttt_knife",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_knife.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_smokegrenade": {
+      "name": "grenade_smoke",
+      "class": "weapon_ttt_smokegrenade",
+      "base": "weapon_tttbasegrenade",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_smokegrenade.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_m16": {
+      "name": "M16",
+      "class": "weapon_ttt_m16",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_m16.lua",
+      "definition_type": "weapon file"
+    },
+    "player_weapon_color": {
+      "name": "player_weapon_color",
+      "class": "player_weapon_color",
+      "base": "weapon_base",
+      "category": "",
+      "gamemode": "Sandbox",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\lua\\matproxy\\player_weapon_color.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_tttbase": {
+      "name": "weapon_tttbase",
+      "class": "weapon_tttbase",
+      "base": "weapon_tttbase",
+      "category": "TTT",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_tttbase.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_beacon": {
+      "name": "Beacon",
+      "class": "weapon_ttt_beacon",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_beacon.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_c4": {
+      "name": "C4",
+      "class": "weapon_ttt_c4",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_c4.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_binoculars": {
+      "name": "binoc_name",
+      "class": "weapon_ttt_binoculars",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_binoculars.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_tttbasegrenade": {
+      "name": "Incendiary grenade",
+      "class": "weapon_tttbasegrenade",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_tttbasegrenade.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_cse": {
+      "name": "vis_name",
+      "class": "weapon_ttt_cse",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_cse.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_decoy": {
+      "name": "decoy_name",
+      "class": "weapon_ttt_decoy",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_decoy.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_defuser": {
+      "name": "defuser_name",
+      "class": "weapon_ttt_defuser",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_defuser.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_flaregun": {
+      "name": "flare_name",
+      "class": "weapon_ttt_flaregun",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_flaregun.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_health_station": {
+      "name": "hstation_name",
+      "class": "weapon_ttt_health_station",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_health_station.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_glock": {
+      "name": "Glock",
+      "class": "weapon_ttt_glock",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_glock.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_stungun": {
+      "name": "stungun_name",
+      "class": "weapon_ttt_stungun",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_stungun.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_push": {
+      "name": "newton_name",
+      "class": "weapon_ttt_push",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_push.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_sipistol": {
+      "name": "sipistol_name",
+      "class": "weapon_ttt_sipistol",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_sipistol.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_phammer": {
+      "name": "polter_name",
+      "class": "weapon_ttt_phammer",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_phammer.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_radio": {
+      "name": "radio_name",
+      "class": "weapon_ttt_radio",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_radio.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_unarmed": {
+      "name": "unarmed_name",
+      "class": "weapon_ttt_unarmed",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_unarmed.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_teleport": {
+      "name": "tele_name",
+      "class": "weapon_ttt_teleport",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_teleport.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_carry": {
+      "name": "magnet_name",
+      "class": "weapon_zm_carry",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_carry.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_improvised": {
+      "name": "crowbar_name",
+      "class": "weapon_zm_improvised",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_improvised.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_molotov": {
+      "name": "grenade_fire",
+      "class": "weapon_zm_molotov",
+      "base": "weapon_tttbasegrenade",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_molotov.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_pistol": {
+      "name": "pistol_name",
+      "class": "weapon_zm_pistol",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_pistol.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_mac10": {
+      "name": "MAC10",
+      "class": "weapon_zm_mac10",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_mac10.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_ttt_wtester": {
+      "name": "dna_name",
+      "class": "weapon_ttt_wtester",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_ttt_wtester.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_revolver": {
+      "name": "Deagle",
+      "class": "weapon_zm_revolver",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_revolver.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_sledge": {
+      "name": "H.U.G.E-249",
+      "class": "weapon_zm_sledge",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_sledge.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_shotgun": {
+      "name": "shotgun_name",
+      "class": "weapon_zm_shotgun",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_shotgun.lua",
+      "definition_type": "weapon file"
+    },
+    "weapon_zm_rifle": {
+      "name": "rifle_name",
+      "class": "weapon_zm_rifle",
+      "base": "weapon_tttbase",
+      "category": "",
+      "gamemode": "TTT",
+      "file": "J:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod\\gamemodes\\terrortown\\entities\\weapons\\weapon_zm_rifle.lua",
+      "definition_type": "weapon file"
+    }
+  },
+  "stats": {
+    "files_scanned": 6439,
+    "sweps_found": 36,
+    "gamemode_breakdown": {
+      "Sandbox": 4,
+      "TTT": 32
+    },
+    "base_breakdown": {
+      "weapon_base": 4,
+      "weapon_tttbasegrenade": 3,
+      "weapon_tttbase": 29
+    },
+    "errors": 0
+  },
+  "timestamp": "2025-04-24 17:41:33"
+}
