@@ -379,39 +379,54 @@ class LuaCacheDecoder:
             string_pattern = re.compile(b'[\x20-\x7E]{4,}')  # Printable ASCII characters
             strings = string_pattern.findall(binary_data)
             return '\n'.join(s.decode('utf-8', errors='ignore') for s in strings)
-    
+            
     def decode_file(self, file_path: Path) -> str:
         """
-        Decode a file (workshop GMA file or Lua cache file).
+        Decode any file (Lua cache, GMA, or plain text) based on its extension.
         
         Args:
             file_path: Path to the file to decode
             
         Returns:
-            Decoded content as string, or empty string if decoding failed
+            Decoded content as string
         """
-        # Check if this is a Lua cache file
-        if str(file_path).endswith('.lua.cache') or str(file_path).endswith('.lc'):
+        if not file_path.exists():
+            debug_print(f"File does not exist: {file_path}")
+            return ""
+            
+        # Handle different file types
+        if file_path.suffix.lower() == '.lc':
+            # It's a Lua cache file, use specialized decoder
+            debug_print(f"Decoding Lua cache file: {file_path}")
             return self.decode_lc_file(file_path)
-        
-        # For workshop GMA files, just extract readable strings
-        if str(file_path).endswith('.gma'):
+            
+        elif file_path.suffix.lower() == '.gma':
+            # It's a GMA file, try to extract readable strings
+            debug_print(f"Extracting strings from GMA file: {file_path}")
             try:
-                debug_print(f"Extracting readable strings from GMA file: {file_path}")
                 with open(file_path, 'rb') as f:
                     binary_data = f.read()
                 return self._extract_strings_from_binary(binary_data)
             except Exception as e:
-                debug_print(f"Failed to extract strings from GMA file: {e}")
+                debug_print(f"Error extracting strings from GMA: {str(e)}")
                 return ""
-        
-        # For regular files, just read them
-        try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                return f.read()
-        except Exception as e:
-            debug_print(f"Failed to read file: {e}")
-            return ""
+                
+        else:
+            # It's a regular file, just read it as text
+            debug_print(f"Reading regular file: {file_path}")
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    return f.read()
+            except Exception as e:
+                debug_print(f"Error reading file: {str(e)}")
+                try:
+                    # Try binary mode as fallback
+                    with open(file_path, 'rb') as f:
+                        binary_data = f.read()
+                    return self._extract_strings_from_binary(binary_data)
+                except Exception as e2:
+                    debug_print(f"Error reading file in binary mode: {str(e2)}")
+                    return ""
     
     def extract_swep_info(self, decoded_content: str) -> Dict:
         """
