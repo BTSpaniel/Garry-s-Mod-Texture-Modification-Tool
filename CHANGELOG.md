@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.8] - 2025-04-26
+
+### Added
+- Modularized SWEP detector architecture for better maintainability and extensibility
+- Enhanced texture reference extraction with more comprehensive pattern matching
+- Improved model reference detection with path normalization
+- Better gamemode detection for various SWEP types
+
+### Fixed
+- Improved compatibility with custom and base weapons
+- Enhanced SWEP table parsing for ViewModel, WorldModel, and custom materials
+- Fixed path handling for texture and model references
+- Improved detection of material paths in various formats
+
+## [1.3.7] - 2025-04-25
+
+### Fixed
+- Fixed version number display in update notifications
+- Improved version number extraction from GitHub releases
+- Enhanced batch file with better directory handling
+- Added additional error handling for update process
+
 ## [1.3.6] - 2025-04-25
 
 ### Added

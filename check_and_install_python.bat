@@ -54,7 +54,13 @@ python -m pip install -r requirements.txt >nul 2>&1
 
 :: Run the main application
 echo Starting application...
-python main.py
+
+:: Run the application with error handling
+python debug_app.py
+if %errorlevel% neq 0 (
+    echo Application encountered an error.
+    exit /b %errorlevel%
+)
 
 exit /b 0
 

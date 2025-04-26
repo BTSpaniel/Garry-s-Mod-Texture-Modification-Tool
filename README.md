@@ -1,4 +1,4 @@
-# Texture Extractor v1.3.7
+# Texture Extractor v1.3.8
 
 A tool to extract and modify Garry's Mod textures.
 
@@ -81,6 +81,14 @@ The application includes an automatic update system that checks for new versions
 - Shows detailed progress during updates
 
 ## Version History
+
+### v1.3.8 (2025-04-26)
+- Improved SWEP detector with enhanced texture and model extraction
+- Modularized SWEP detector for better maintainability and extensibility
+- Enhanced detection of custom and base weapons
+- Improved parsing of SWEP tables (ViewModel, WorldModel, custom materials)
+- Added more comprehensive pattern matching for texture and model references
+- Fixed compatibility issues with various SWEP formats
 
 ### v1.3.7 (2025-04-25)
 - Fixed version number display in update notifications
