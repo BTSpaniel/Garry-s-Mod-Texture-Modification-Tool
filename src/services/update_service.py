@@ -844,6 +844,18 @@ class UpdateService:
             # Get the path to the Python executable and script
             python = sys.executable
             script = os.path.abspath(sys.argv[0])
+            script_dir = os.path.dirname(script)
+            
+            # Get command line arguments
+            args = sys.argv[1:]
+            args_str = ' '.join(f'"{arg}"' for arg in args) if args else ''
+            
+            # Create a unique marker file to verify restart success
+            marker_file = Path(tempfile.gettempdir()) / f"texture_extractor_restart_{int(time.time())}.marker"
+            with open(marker_file, 'w') as f:
+                f.write(f"Restart marker created at {datetime.now().isoformat()}\n")
+            
+            logging.info(f"Created restart marker: {marker_file}")
             
             # Close logs
             logging.shutdown()
@@ -855,17 +867,29 @@ class UpdateService:
                 
                 with open(restart_script, 'w') as f:
                     f.write(f"@echo off\n")
-                    f.write(f"cd /d \"{os.path.dirname(script)}\"\n")  # Change to the script directory
-                    f.write(f"timeout /t 1 /nobreak > nul\n")  # Wait 1 second
-                    f.write(f"start "" \"{python}\" \"{os.path.basename(script)}\"\n")
+                    f.write(f"cd /d \"{script_dir}\"\n")  # Change to the script directory
+                    f.write(f"echo Waiting for application to close...\n")
+                    f.write(f"timeout /t 2 /nobreak > nul\n")  # Wait 2 seconds
+                    f.write(f"echo Starting application...\n")
+                    # Use the full path to the script and preserve command line arguments
+                    f.write(f"start \"Texture Extractor\" \"{python}\" \"{script}\" {args_str}\n")
+                    # Delete the marker file to indicate successful restart
+                    f.write(f"if exist \"{marker_file}\" del \"{marker_file}\"\n")
+                    # Self-delete the batch file
+                    f.write(f"(goto) 2>nul & del \"%~f0\"\n")
                 
                 # Execute the batch file and exit current process
                 logging.info(f"Executing restart script: {restart_script}")
-                subprocess.Popen([str(restart_script)], shell=True)
+                # Use CREATE_NEW_CONSOLE flag to ensure the batch file runs in a new console
+                subprocess.Popen([str(restart_script)], 
+                               shell=True, 
+                               creationflags=subprocess.CREATE_NEW_CONSOLE)
+                
+                # Exit the current process
                 sys.exit(0)
             else:
                 # On other platforms, use execl
-                os.execl(python, python, script)
+                os.execl(python, python, script, *args)
             
         except Exception as e:
             logging.error(f"Failed to restart application: {e}")
