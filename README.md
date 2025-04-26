@@ -1,4 +1,4 @@
-# Texture Extractor v1.3.7
+# Texture Extractor v1.3.10
 
 A tool to extract and modify Garry's Mod textures.
 
@@ -81,6 +81,23 @@ The application includes an automatic update system that checks for new versions
 - Shows detailed progress during updates
 
 ## Version History
+
+### v1.3.10 (2025-04-26)
+- Fixed SWEP detector by adding missing decode_file method to LuaCacheDecoder
+- Fixed workshop file processing in SWEP detector
+- Fixed update service to use current version as fallback instead of hardcoded version
+- Improved error handling for GMA file extraction
+- Cleaned up project structure by removing experimental modular SWEP detector files
+
+### v1.3.9 (2025-04-26)
+- Fixed update service incorrectly detecting new versions when none are available
+- Improved version comparison logic to prevent false update notifications
+
+### v1.3.8 (2025-04-25)
+- Enhanced SWEP detector with improved pattern matching
+- Better error handling for workshop content processing
+- Fixed path handling for texture and model references
+- Improved detection of material paths in various formats
 
 ### v1.3.7 (2025-04-25)
 - Fixed version number display in update notifications

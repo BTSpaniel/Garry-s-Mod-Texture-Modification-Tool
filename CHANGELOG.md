@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.10] - 2025-04-26
+
+### Fixed
+- Fixed SWEP detector by adding missing decode_file method to LuaCacheDecoder
+- Fixed workshop file processing in SWEP detector
+- Fixed update service to use current version as fallback instead of hardcoded version
+- Improved error handling for GMA file extraction
+- Cleaned up project structure by removing experimental modular SWEP detector files
+
+## [1.3.9] - 2025-04-26
+
+### Fixed
+- Fixed update service incorrectly detecting new versions when none are available
+- Improved version comparison logic to prevent false update notifications
+
+## [1.3.8] - 2025-04-25
+
+### Added
+- Enhanced SWEP detector with improved pattern matching
+- Better error handling for workshop content processing
+
+### Fixed
+- Fixed path handling for texture and model references
+- Improved detection of material paths in various formats
+
+## [1.3.7] - 2025-04-25
+
+### Fixed
+- Fixed version number display in update notifications
+- Improved version number extraction from GitHub releases
+- Enhanced batch file with better directory handling
+- Added additional error handling for update process
+
 ## [1.3.6] - 2025-04-25
 
 ### Added
